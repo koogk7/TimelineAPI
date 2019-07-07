@@ -16,7 +16,7 @@ public class MemberVoTest {
                 .email(email)
                 .nickname("네이버사랑해요")
                 .password("1234")
-                .profile_img("www.naver.com/my.jpg")
+                .profileImg("www.naver.com/my.jpg")
                 .build();
         //then
         assertEquals(member.getEmail(), email);

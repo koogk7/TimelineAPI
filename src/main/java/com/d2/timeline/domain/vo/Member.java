@@ -1,24 +1,21 @@
 package com.d2.timeline.domain.vo;
 
-import com.d2.timeline.global.AbstractEntity;
+
+import com.d2.timeline.domain.common.BaseEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.stereotype.Service;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-//@Builder
 @Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "member_tb")
-public class Member extends AbstractEntity {
+public class Member extends BaseEntity {
     @Column(name = "email")
     private String email;
 
@@ -32,14 +29,14 @@ public class Member extends AbstractEntity {
 
     @Setter
     @Column(name = "profile_img")
-    private String profile_img;
+    private String profileImg;
 
     @Builder
-    public Member(String email, String password, String nickname, String profile_img){
+    public Member(String email, String password, String nickname, String profileImg){
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.profile_img = profile_img;
+        this.profileImg = profileImg;
     }
 
 

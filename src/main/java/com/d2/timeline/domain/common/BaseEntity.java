@@ -1,12 +1,16 @@
-package com.d2.timeline.global;
+package com.d2.timeline.domain.common;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
-public class AbstractEntity {
+@NoArgsConstructor
+@Getter
+public class BaseEntity {
     @Id
     @Column(name = "idx_PK")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +23,9 @@ public class AbstractEntity {
     @CreationTimestamp
     @Column(name = "updated_DT")
     private LocalDateTime updatedDT;
+
+    public BaseEntity(Long id){
+        this.id = id;
+    }
+
 }
