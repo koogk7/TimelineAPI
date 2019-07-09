@@ -3,6 +3,7 @@ package com.d2.timeline.domain.service;
 import com.d2.timeline.domain.dao.BoardRepository;
 import com.d2.timeline.domain.dto.BoardDTO;
 import com.d2.timeline.domain.vo.Board;
+import com.d2.timeline.domain.vo.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
+import static com.d2.timeline.domain.Constant.BoardConstant.*;
 
 @Service
 public class BoardService {
@@ -21,14 +25,16 @@ public class BoardService {
     @Autowired
     BoardRepository boardRepository;
 
-    public String saveBoard(Board newBoard){
-        Board board = boardRepository.save(newBoard);
-        return "게시물 작성에 성공했습니다.";
+    public String saveBoard(BoardDTO newBoardDTO){
+        Board newBoard = newBoardDTO.transBoard();
+        //Todo 게시물 저장 실패 시 예외처리 필요
+        boardRepository.save(newBoard);
+        return SAVE_OK_MSG;
     }
 
     public BoardDTO findByBoardId(Long boardId){
         Board targetBoard = boardRepository.findById(boardId).orElseGet(()->{
-            logger.error("존재하지 않는 게시물 번호입니다.");
+            logger.error(ID_ERROR_MSG);
             return Board.builder().id(-1L).build();
         });
         return new BoardDTO(targetBoard);
@@ -37,7 +43,7 @@ public class BoardService {
     public List<BoardDTO> findByWriter(Long writerId, Pageable pageable){
         List<BoardDTO> boardDTOList = new ArrayList<>();
         List<Board> resultBoardList = boardRepository.findByWriterUid(writerId, pageable).orElseGet(()->{
-            logger.info("작성한 게시물이 없습니다.");
+            logger.info(NO_EXIST_MSG);
             return Collections.emptyList();
         });
 
@@ -45,5 +51,8 @@ public class BoardService {
 
         return boardDTOList;
     }
+
+//    public List<BoardDTO> loadTimeLine(Long memberId, Pageable pageable){
+//    }
 
 }

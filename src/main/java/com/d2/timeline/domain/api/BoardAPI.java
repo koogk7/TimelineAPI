@@ -2,11 +2,7 @@ package com.d2.timeline.domain.api;
 
 import com.d2.timeline.domain.dto.BoardDTO;
 import com.d2.timeline.domain.service.BoardService;
-import com.d2.timeline.domain.vo.Board;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.d2.timeline.domain.Constant.BoardConstant.*;
+import static com.d2.timeline.domain.Constant.SwaggerBoardConstant.*;
 import static com.d2.timeline.domain.Constant.SwaggerPageConstant.*;
 
 
@@ -31,7 +27,7 @@ public class BoardAPI {
 
     @PostMapping(value = "")
     @ApiOperation(value = "게시물 작성")
-    public String writeBoard(Board board){
+    public String writeBoard(@ApiParam(value = BOARD_DESC) BoardDTO board){
         logger.info("Entry saveBoard, board: " + board.getContentText());
         return boardService.saveBoard(board);
     }

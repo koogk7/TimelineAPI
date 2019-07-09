@@ -32,7 +32,8 @@ public class Member extends BaseEntity {
     private String profileImg;
 
     @Builder
-    public Member(String email, String password, String nickname, String profileImg){
+    public Member(Long id, String email, String password, String nickname, String profileImg){
+        super(id);
         this.email = email;
         this.password = password;
         this.nickname = nickname;
