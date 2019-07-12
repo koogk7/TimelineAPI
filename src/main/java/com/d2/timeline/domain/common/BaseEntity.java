@@ -1,8 +1,10 @@
 package com.d2.timeline.domain.common;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,9 +22,16 @@ public class BaseEntity {
     @Column(name = "created_DT")
     private LocalDateTime createdDT;
 
-    @CreationTimestamp
+    @UpdateTimestamp
     @Column(name = "updated_DT")
     private LocalDateTime updatedDT;
+
+    public BaseEntity(Long id, LocalDateTime createdDT,
+                      LocalDateTime updatedDT){
+        this.id = id;
+        this.createdDT = createdDT;
+        this.updatedDT = updatedDT;
+    }
 
     public BaseEntity(Long id){
         this.id = id;

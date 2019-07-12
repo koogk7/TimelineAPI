@@ -71,6 +71,6 @@ public class RelationServiceTest extends MockTest {
     public void 관계목록출력_성공() {
         //given
         final RelationState state = RelationState.FOLLOW;
-        given(userRelationRepo.findByMasterAndState(master, state))
+        given(userRelationRepo.findByMasterAndState(master, state));
     }
 }

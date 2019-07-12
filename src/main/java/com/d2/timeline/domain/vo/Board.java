@@ -7,6 +7,7 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,6 +18,7 @@ public class Board extends BaseEntity {
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "user_FK", nullable = false)
+    @Setter
     private Member writer;
 
     @Setter
@@ -29,8 +31,10 @@ public class Board extends BaseEntity {
     private String contentImg;
 
     @Builder
-    public Board(Long id, Member writer, String contentText, String contentImg){
-        super(id);
+    public Board(Long id, Member writer, String contentText,
+                 String contentImg, LocalDateTime createdDT,
+                 LocalDateTime updatedDT){
+        super(id, createdDT, updatedDT);
         this.writer = writer;
         this.contentText = contentText;
         this.contentImg = contentImg;

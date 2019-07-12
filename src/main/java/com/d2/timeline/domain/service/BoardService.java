@@ -1,10 +1,11 @@
 package com.d2.timeline.domain.service;
 
 import com.d2.timeline.domain.dao.BoardRepository;
-import com.d2.timeline.domain.dto.BoardDTO;
+import com.d2.timeline.domain.dto.BoardReadDTO;
+import com.d2.timeline.domain.dto.BoardUpdateDTO;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
-import org.modelmapper.ModelMapper;
+import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import javax.persistence.NoResultException;
 
 import static com.d2.timeline.domain.Constant.BoardConstant.*;
 
@@ -28,43 +26,42 @@ public class BoardService {
     @Autowired
     private BoardRepository boardRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-    public HttpStatus saveBoard(BoardDTO newBoardDTO){
-        Board newBoard = newBoardDTO.transBoard();
-        //Todo 게시물 저장 실패 시 예외처리 필요
+    public HttpStatus saveBoard(BoardReadDTO newBoardReadDTO){
+        Board newBoard = newBoardReadDTO.transBoard();
         boardRepository.save(newBoard);
         return HttpStatus.CREATED;
     }
 
-    public HttpStatus updateBoard(BoardDTO updateBoard){
-        boolean exist = boardRepository.existsById(updateBoard.getId());
-        if(!exist)
-            return HttpStatus.BAD_REQUEST; // Todo 이 메시지가 맞나?
-        boardRepository.save(updateBoard.transBoard());
-        return HttpStatus.OK;
+    public String updateBoard(Long userId, Long boardId, BoardUpdateDTO updateBoardDTO){
+        //Todo 유저 검증확인하는 로직 필요
+        Board updateBoard = boardRepository.findById(boardId).orElseThrow(
+                ()-> new NoResultException(ERROR_MSG));
+
+        updateBoard = updateBoardDTO.transBoard(updateBoard);
+        boardRepository.save(updateBoard);
+        return OK_MSG;
     }
 
-    public HttpStatus deleteBoard(BoardDTO deleteBoard){
-        boolean exist = boardRepository.existsById(deleteBoard.getId());
+    public String deleteBoard(Long deleteBoard){
+        boolean exist = boardRepository.existsById(deleteBoard);
         if(!exist)
-            return HttpStatus.BAD_REQUEST; // Todo 이 메시지가 맞나?
-        boardRepository.delete(deleteBoard.transBoard());
-        return HttpStatus.OK;
+            return ERROR_MSG; //Todo 예외를 던져야함
+
+        boardRepository.deleteById(deleteBoard);
+        return OK_MSG;
     }
 
-    public BoardDTO findByBoardId(Long boardId){
+    public BoardReadDTO findByBoardId(Long boardId){
         Board targetBoard = boardRepository.findById(boardId).orElseGet(()->{
-            logger.error(ID_ERROR_MSG);
+            logger.error(ERROR_MSG);
             return Board.builder().id(-1L).build();
         });
-        return new BoardDTO(targetBoard);
+        return new BoardReadDTO(targetBoard);
     }
 
-    public Page<BoardDTO> findByWriter(Long writerId, Pageable pageable){
+    public Page<BoardReadDTO> findByWriter(Long writerId, Pageable pageable){
         Page<Board> resultBoardList = boardRepository.findByWriterUid(writerId, pageable);
-        return resultBoardList.map(BoardDTO::new);
+        return resultBoardList.map(BoardReadDTO::new);
     }
 
 }
