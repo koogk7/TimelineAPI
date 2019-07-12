@@ -4,10 +4,13 @@ import com.d2.timeline.domain.dao.BoardRepository;
 import com.d2.timeline.domain.dto.BoardDTO;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,13 +26,32 @@ public class BoardService {
     private static final Logger logger = LoggerFactory.getLogger(BoardService.class);
 
     @Autowired
-    BoardRepository boardRepository;
+    private BoardRepository boardRepository;
 
-    public String saveBoard(BoardDTO newBoardDTO){
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public HttpStatus saveBoard(BoardDTO newBoardDTO){
         Board newBoard = newBoardDTO.transBoard();
         //Todo 게시물 저장 실패 시 예외처리 필요
         boardRepository.save(newBoard);
-        return SAVE_OK_MSG;
+        return HttpStatus.CREATED;
+    }
+
+    public HttpStatus updateBoard(BoardDTO updateBoard){
+        boolean exist = boardRepository.existsById(updateBoard.getId());
+        if(!exist)
+            return HttpStatus.BAD_REQUEST; // Todo 이 메시지가 맞나?
+        boardRepository.save(updateBoard.transBoard());
+        return HttpStatus.OK;
+    }
+
+    public HttpStatus deleteBoard(BoardDTO deleteBoard){
+        boolean exist = boardRepository.existsById(deleteBoard.getId());
+        if(!exist)
+            return HttpStatus.BAD_REQUEST; // Todo 이 메시지가 맞나?
+        boardRepository.delete(deleteBoard.transBoard());
+        return HttpStatus.OK;
     }
 
     public BoardDTO findByBoardId(Long boardId){
@@ -40,19 +62,9 @@ public class BoardService {
         return new BoardDTO(targetBoard);
     }
 
-    public List<BoardDTO> findByWriter(Long writerId, Pageable pageable){
-        List<BoardDTO> boardDTOList = new ArrayList<>();
-        List<Board> resultBoardList = boardRepository.findByWriterUid(writerId, pageable).orElseGet(()->{
-            logger.info(NO_EXIST_MSG);
-            return Collections.emptyList();
-        });
-
-        resultBoardList.forEach(x -> boardDTOList.add(new BoardDTO(x)));
-
-        return boardDTOList;
+    public Page<BoardDTO> findByWriter(Long writerId, Pageable pageable){
+        Page<Board> resultBoardList = boardRepository.findByWriterUid(writerId, pageable);
+        return resultBoardList.map(BoardDTO::new);
     }
-
-//    public List<BoardDTO> loadTimeLine(Long memberId, Pageable pageable){
-//    }
 
 }

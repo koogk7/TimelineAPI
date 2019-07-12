@@ -2,22 +2,31 @@ package com.d2.timeline.domain.api;
 
 import com.d2.timeline.domain.dto.BoardDTO;
 import com.d2.timeline.domain.service.BoardService;
+import com.d2.timeline.domain.vo.Board;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.PagedResources.PageMetadata;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 import static com.d2.timeline.domain.Constant.SwaggerBoardConstant.*;
 import static com.d2.timeline.domain.Constant.SwaggerPageConstant.*;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 
 @Api(value = "Board for API")
 @RestController
-@RequestMapping(value = "api/board")
+@RequestMapping(value = "api/boards")
 public class BoardAPI {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardAPI.class);
@@ -27,9 +36,15 @@ public class BoardAPI {
 
     @PostMapping(value = "")
     @ApiOperation(value = "게시물 작성")
-    public String writeBoard(@ApiParam(value = BOARD_DESC) BoardDTO board){
+    public ResponseEntity<?> writeBoard(@ApiParam(value = BOARD_DESC) BoardDTO board){
         logger.info("Entry saveBoard, board: " + board.getContentText());
-        return boardService.saveBoard(board);
+        return new ResponseEntity<>(boardService.saveBoard(board));
+    }
+
+    @PutMapping(value = "/{"+ BOARD_ID_NAME + "}")
+    @ApiOperation(value = "게시물 수정")
+    public ResponseEntity<?> updateBoard(@PathVariable(BOARD_ID_NAME) Long boardId){
+        logger.info("Entry updateBoard, boardId : " + boardId.toString());
     }
 
     @GetMapping(value = "/{"+ BOARD_ID_NAME + "}")
@@ -55,9 +70,11 @@ public class BoardAPI {
             @ApiImplicitParam(name = SORT_NAME, value = SORT_DESC, allowMultiple = true,
                     dataType = "string", paramType = "query")
     })
-    public List<BoardDTO> loadBoardListByWriter(@RequestParam(value = WRITER_NAME) Long writerId,
-                                                Pageable pageable){
+    public ResponseEntity<?> loadBoardListByWriter(@RequestParam(value = WRITER_NAME) Long writerId,
+                                                   Pageable pageable,
+                                                   PagedResourcesAssembler assembler){
         logger.info("Entry getBoardListByWriter, writerId : " + writerId.toString());
-        return boardService.findByWriter(writerId, pageable);
+        Page<BoardDTO> boards = boardService.findByWriter(writerId, pageable);
+        return ResponseEntity.ok(assembler.toResource(boards));
     }
 }
