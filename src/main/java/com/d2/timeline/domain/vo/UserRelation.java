@@ -27,7 +27,8 @@ public class UserRelation extends BaseEntity {
     private RelationState state;
 
     @Builder
-    public UserRelation(Member master, Member slave, RelationState state){
+    public UserRelation(Long id, Member master, Member slave, RelationState state){
+        super(id);
         this.master = master;
         this.slave = slave;
         this.state = state;
