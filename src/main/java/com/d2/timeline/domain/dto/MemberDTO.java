@@ -19,4 +19,12 @@ public class MemberDTO {
         this.email = member.getEmail();
         this.profileImg = member.getProfileImg();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this.getId() != ((MemberDTO) obj).getId()) {
+            return false;
+        }
+        return true;
+    }
 }

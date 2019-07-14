@@ -19,8 +19,12 @@ public interface UserRelationRepository extends JpaRepository<UserRelation, Long
     Optional<UserRelation> findByMasterAndSlave(Member master, Member slave);
 
     @Query("select r.slave from UserRelation r where r.master = (:master) and r.state = (:state)")
-    Optional<List<Member>> findByMasterAndState(@Param("master")Member master, @Param("state")RelationState state);
+    Optional<List<Member>> findSlaveByMasterAndState(@Param("master")Member master, @Param("state")RelationState state);
 
     @Query("select r.master from UserRelation r where r.slave = (:slave) and r.state = (:state)")
-    List<Member> findBySlaveAndState(@Param("slave")Member slave, @Param("state")RelationState state);
+    Optional<List<Member>> findMasterBySlaveAndState(@Param("slave")Member slave, @Param("state")RelationState state);
+
+    boolean existsByMasterAndSlave(Member master, Member slave);
+
+    void deleteByMasterAndSlave(Member master, Member slave);
 }
