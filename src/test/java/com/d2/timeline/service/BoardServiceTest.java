@@ -1,8 +1,7 @@
 package com.d2.timeline.service;
 
 import com.d2.timeline.domain.dao.BoardRepository;
-import com.d2.timeline.domain.dto.BoardReadDTO;
-import com.d2.timeline.domain.dto.BoardUpdateDTO;
+import com.d2.timeline.domain.dto.BoardWriteDTO;
 import com.d2.timeline.domain.service.BoardService;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
@@ -10,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.http.HttpStatus;
 
 import static com.d2.timeline.domain.Constant.BoardConstant.ERROR_MSG;
 import static com.d2.timeline.domain.Constant.BoardConstant.OK_MSG;
@@ -28,7 +26,7 @@ public class BoardServiceTest extends MockTest{
 
     private Board board;
     private Member author;
-    private BoardUpdateDTO boardUpdateDTO;
+    private BoardWriteDTO boardUpdateDTO;
 
     @Before
     public void setUp() throws Exception {
@@ -47,7 +45,7 @@ public class BoardServiceTest extends MockTest{
                 .contentText("Testing...")
                 .build();
 
-        BoardUpdateDTO boardUpdateDTO = BoardUpdateDTO.builder()
+        BoardWriteDTO boardUpdateDTO = BoardWriteDTO.builder()
                 .contentText(board.getContentText())
                 .contentImg(board.getContentImg())
                 .build();

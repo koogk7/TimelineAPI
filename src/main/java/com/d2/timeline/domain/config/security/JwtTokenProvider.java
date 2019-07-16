@@ -1,10 +1,14 @@
-package com.d2.timeline.domain.common;
+package com.d2.timeline.domain.config.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,8 +31,12 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-    @Value("spring.jsw.secret")
+    @Getter
+    @Value("${spring.jwt.secret}")
     private String secretKey;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+
 
     private long tokenValidMilisecond = 1000L * 60 * 60; // 1시간
 
@@ -54,6 +62,9 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token){
         UserDetails userDetails = userDetailsService.
                 loadUserByUsername(this.getUsePk(token));
+
+        logger.info(userDetails.toString());
+
         return new UsernamePasswordAuthenticationToken(userDetails,
                 "", userDetails.getAuthorities());
     }
@@ -63,7 +74,8 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
-    public String resloveToken(HttpServletRequest request){
+    public String resolveToken(HttpServletRequest request){
+        System.out.println(request.toString());
         return request.getHeader("X-AUTH-TOKEN");
     }
 

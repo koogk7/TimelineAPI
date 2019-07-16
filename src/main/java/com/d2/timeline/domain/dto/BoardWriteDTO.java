@@ -9,19 +9,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BoardUpdateDTO {
-    private String contextText;
+public class BoardWriteDTO {
+    private String contentText;
     private String contentImg;
 
     public Board transBoard(Board board) {
-        board.setContentText(this.contextText);
+        board.setContentText(this.contentText);
         board.setContentImg(this.contentImg);
         return board;
     }
 
     @Builder
-    public BoardUpdateDTO(String contentText, String contentImg){
-        this.contextText = contentText;
+    public BoardWriteDTO(String contentText, String contentImg){
+        this.contentText = contentText;
         this.contentImg = contentImg;
     }
 }
