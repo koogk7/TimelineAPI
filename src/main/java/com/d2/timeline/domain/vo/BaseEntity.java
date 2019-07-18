@@ -1,4 +1,4 @@
-package com.d2.timeline.domain.common;
+package com.d2.timeline.domain.vo;
 
 import lombok.Builder;
 import lombok.Getter;

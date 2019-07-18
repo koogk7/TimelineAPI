@@ -1,8 +1,7 @@
 package com.d2.timeline.service;
 
 import com.d2.timeline.domain.dao.BoardRepository;
-import com.d2.timeline.domain.dto.BoardReadDTO;
-import com.d2.timeline.domain.dto.BoardUpdateDTO;
+import com.d2.timeline.domain.dto.BoardWriteDTO;
 import com.d2.timeline.domain.service.BoardService;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
@@ -10,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.http.HttpStatus;
 
 import static com.d2.timeline.domain.Constant.BoardConstant.ERROR_MSG;
 import static com.d2.timeline.domain.Constant.BoardConstant.OK_MSG;
@@ -19,7 +17,9 @@ import static org.mockito.BDDMockito.given;
 
 public class BoardServiceTest extends MockTest{
     final static Long boardId = 1L;
-    final static Long authorId = 1L;
+    final static String authorEmail = "master@test.com";
+
+
     @InjectMocks
     private BoardService boardService;
 
@@ -28,12 +28,12 @@ public class BoardServiceTest extends MockTest{
 
     private Board board;
     private Member author;
-    private BoardUpdateDTO boardUpdateDTO;
+    private BoardWriteDTO boardUpdateDTO;
 
     @Before
     public void setUp() throws Exception {
         author = Member.builder()
-                .id(authorId)
+                .id(1L)
                 .email("test@naver.com")
                 .password("123")
                 .nickname("테서트")
@@ -47,7 +47,7 @@ public class BoardServiceTest extends MockTest{
                 .contentText("Testing...")
                 .build();
 
-        BoardUpdateDTO boardUpdateDTO = BoardUpdateDTO.builder()
+        BoardWriteDTO boardUpdateDTO = BoardWriteDTO.builder()
                 .contentText(board.getContentText())
                 .contentImg(board.getContentImg())
                 .build();
@@ -58,7 +58,7 @@ public class BoardServiceTest extends MockTest{
         //given
         given(boardRepository.existsById(boardId)).willReturn(true);
         //when
-        final String returnMessage = boardService.updateBoard(authorId, boardId, boardUpdateDTO);
+        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
         //then
         assertEquals(OK_MSG, returnMessage);
     }
@@ -68,7 +68,7 @@ public class BoardServiceTest extends MockTest{
         //given
         given(boardRepository.existsById(-1L)).willReturn(false);
         //when
-        final String returnMessage = boardService.updateBoard(authorId, boardId, boardUpdateDTO);
+        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
         //then
         assertEquals(ERROR_MSG, returnMessage);
     }
@@ -78,7 +78,7 @@ public class BoardServiceTest extends MockTest{
         //given
         given(boardRepository.existsById(boardId)).willReturn(true);
         //when
-        final String returnMessage = boardService.deleteBoard(boardId);
+        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
         //then
         assertEquals(OK_MSG, returnMessage);
     }
@@ -88,7 +88,7 @@ public class BoardServiceTest extends MockTest{
         //given
         given(boardRepository.existsById(boardId)).willReturn(false);
         //when
-        final String returnMessage = boardService.deleteBoard(boardId);
+        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
         //then
         assertEquals(ERROR_MSG, returnMessage);
     }

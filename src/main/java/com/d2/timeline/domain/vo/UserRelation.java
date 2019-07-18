@@ -1,6 +1,5 @@
 package com.d2.timeline.domain.vo;
 
-import com.d2.timeline.domain.common.BaseEntity;
 import com.d2.timeline.domain.common.RelationState;
 import lombok.*;
 
