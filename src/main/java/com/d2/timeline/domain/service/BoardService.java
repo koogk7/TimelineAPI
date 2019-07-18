@@ -4,15 +4,15 @@ import com.d2.timeline.domain.dao.BoardRepository;
 import com.d2.timeline.domain.dao.MemberRepository;
 import com.d2.timeline.domain.dto.BoardReadDTO;
 import com.d2.timeline.domain.dto.BoardWriteDTO;
+import com.d2.timeline.domain.exception.EntityNotFoundException;
+import com.d2.timeline.domain.exception.UnmatchedWriterException;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
@@ -28,7 +28,6 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
 
-
     public String saveBoard(String writerEmail, BoardWriteDTO newBoardDTO){
         Member writer =  memberRepository.findByEmail(writerEmail).
                 orElseThrow(()-> new NoResultException(ERROR_MSG));
@@ -41,13 +40,10 @@ public class BoardService {
     }
 
     public String updateBoard(String requestEmail, Long boardId, BoardWriteDTO updateBoardDTO){
-        //Todo 유저 검증확인하는 로직 필요
         Board updateBoard = boardRepository.findById(boardId).orElseThrow(
-                ()-> new NoResultException(ERROR_MSG));
+                ()-> new UnmatchedWriterException("작성자가 아닙니다."));
 
-        if(!isWriter(requestEmail, updateBoard))
-            return ERROR_MSG;
-
+        validateRequest(requestEmail, updateBoard);
         updateBoard = updateBoardDTO.transBoard(updateBoard);
         boardRepository.save(updateBoard);
         return OK_MSG;
@@ -55,20 +51,16 @@ public class BoardService {
 
     public String deleteBoard(String requestEmail, Long deleteBoard){
         Board board = boardRepository.findById(deleteBoard).orElseThrow(
-                ()-> new NoResultException(ERROR_MSG));
+                ()-> new EntityNotFoundException("존재하지 않는 게시물입니다."));
 
-        if(!isWriter(requestEmail, board))
-            return ERROR_MSG;
-
+        validateRequest(requestEmail, board);
         boardRepository.deleteById(deleteBoard);
         return OK_MSG;
     }
 
     public BoardReadDTO findByBoardId(Long boardId){
-        Board targetBoard = boardRepository.findById(boardId).orElseGet(()->{
-            logger.error(ERROR_MSG);
-            return Board.builder().id(-1L).build();
-        });
+        Board targetBoard = boardRepository.findById(boardId).orElseThrow(
+                ()-> new EntityNotFoundException("존재하지 않는 게시물입니다."));
         return new BoardReadDTO(targetBoard);
     }
 
@@ -77,8 +69,9 @@ public class BoardService {
         return resultBoardList.map(BoardReadDTO::new);
     }
 
-    public boolean isWriter(String request, Board board){
+    private void validateRequest(String request, Board board){
         String writerEmail = board.getWriter().getEmail();
-        return request.equals(writerEmail);
+        if(!request.equals(writerEmail))
+            throw new UnmatchedWriterException("작성자가 아닙니다");
     }
 }

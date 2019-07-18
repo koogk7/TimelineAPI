@@ -9,14 +9,15 @@ import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import static com.d2.timeline.domain.Constant.SwaggerBoardConstant.*;
 import static com.d2.timeline.domain.Constant.SwaggerPageConstant.*;
@@ -31,7 +32,6 @@ public class BoardAPI {
     private static final Logger logger = LoggerFactory.getLogger(BoardAPI.class);
 
     private final BoardService boardService;
-    private final ResponseHelper helper;
     private final AuthenticationHelper authHelper;
 
     @ApiOperation(value = "게시물 작성")
@@ -39,7 +39,7 @@ public class BoardAPI {
             @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token", required = true, dataType = "String", paramType = "header")
     })
     @PostMapping(value = "")
-    public String writeBoard(@RequestBody BoardWriteDTO board){
+    public String writeBoard(@RequestBody @Valid BoardWriteDTO board){
         logger.info("Entry saveBoard, board: " + board.getContentText());
         String writerEmail = authHelper.getEmailFormToken();
         return boardService.saveBoard(writerEmail, board);
@@ -50,12 +50,12 @@ public class BoardAPI {
             @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token", required = true, dataType = "String", paramType = "header")
     })
     @PutMapping(value = "/{"+ BOARD_ID_NAME + "}")
-    public ResponseEntity<?> updateBoard(@PathVariable(BOARD_ID_NAME) Long boardId,
-                                         @RequestBody BoardWriteDTO boardUpdateDTO){
+    public ResponseEntity<?> updateBoard(@PathVariable(BOARD_ID_NAME) @NotNull Long boardId,
+                                         @RequestBody @Valid BoardWriteDTO boardUpdateDTO){
         logger.info("Entry updateBoard, boardId : " + boardId.toString());
         String requestEmail = authHelper.getEmailFormToken();
         String msg = boardService.updateBoard(requestEmail, boardId, boardUpdateDTO);
-        return helper.getResEntity(msg);
+        return ResponseEntity.ok(msg);
     }
 
 
@@ -68,7 +68,7 @@ public class BoardAPI {
         logger.info("Entry deleteBoard, boardId : " + boardId.toString());
         String requestEmail = authHelper.getEmailFormToken();
         String msg = boardService.deleteBoard(requestEmail,boardId);
-        return helper.getResEntity(msg);
+        return ResponseEntity.ok(msg);
     }
 
     @GetMapping(value = "/{"+ BOARD_ID_NAME + "}")
@@ -77,9 +77,9 @@ public class BoardAPI {
             @ApiImplicitParam(name = BOARD_ID_NAME, value = BOARD_ID_DESC,
                     required = true, paramType = "path")
     })
-    public BoardReadDTO loadBoardByBoardId(@PathVariable(BOARD_ID_NAME) Long boardId){
+    public ResponseEntity<BoardReadDTO> loadBoardByBoardId(@PathVariable(BOARD_ID_NAME) Long boardId){
         logger.info("Entry getBoardListByWriter, boardId : " + boardId.toString());
-        return boardService.findByBoardId(boardId);
+        return ResponseEntity.ok(boardService.findByBoardId(boardId));
     }
 
     @GetMapping(value = "/")
@@ -95,8 +95,8 @@ public class BoardAPI {
                     dataType = "string", paramType = "query")
     })
     public ResponseEntity<?> loadBoardListByWriter(@RequestParam(value = WRITER_NAME) Long writerId,
-                                                   Pageable pageable,
-                                                   PagedResourcesAssembler assembler){
+                                                                              Pageable pageable,
+                                                                              PagedResourcesAssembler assembler){
         logger.info("Entry getBoardListByWriter, writerId : " + writerId.toString());
         Page<BoardReadDTO> boards = boardService.findByWriter(writerId, pageable);
         return ResponseEntity.ok(assembler.toResource(boards));

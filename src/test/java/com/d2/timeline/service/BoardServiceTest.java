@@ -17,7 +17,9 @@ import static org.mockito.BDDMockito.given;
 
 public class BoardServiceTest extends MockTest{
     final static Long boardId = 1L;
-    final static Long authorId = 1L;
+    final static String authorEmail = "master@test.com";
+
+
     @InjectMocks
     private BoardService boardService;
 
@@ -31,7 +33,7 @@ public class BoardServiceTest extends MockTest{
     @Before
     public void setUp() throws Exception {
         author = Member.builder()
-                .id(authorId)
+                .id(1L)
                 .email("test@naver.com")
                 .password("123")
                 .nickname("테서트")
@@ -56,7 +58,7 @@ public class BoardServiceTest extends MockTest{
         //given
         given(boardRepository.existsById(boardId)).willReturn(true);
         //when
-        final String returnMessage = boardService.updateBoard(authorId, boardId, boardUpdateDTO);
+        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
         //then
         assertEquals(OK_MSG, returnMessage);
     }
@@ -66,7 +68,7 @@ public class BoardServiceTest extends MockTest{
         //given
         given(boardRepository.existsById(-1L)).willReturn(false);
         //when
-        final String returnMessage = boardService.updateBoard(authorId, boardId, boardUpdateDTO);
+        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
         //then
         assertEquals(ERROR_MSG, returnMessage);
     }
@@ -76,7 +78,7 @@ public class BoardServiceTest extends MockTest{
         //given
         given(boardRepository.existsById(boardId)).willReturn(true);
         //when
-        final String returnMessage = boardService.deleteBoard(boardId);
+        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
         //then
         assertEquals(OK_MSG, returnMessage);
     }
@@ -86,7 +88,7 @@ public class BoardServiceTest extends MockTest{
         //given
         given(boardRepository.existsById(boardId)).willReturn(false);
         //when
-        final String returnMessage = boardService.deleteBoard(boardId);
+        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
         //then
         assertEquals(ERROR_MSG, returnMessage);
     }
