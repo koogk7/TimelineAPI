@@ -46,65 +46,41 @@ public class RelationServiceTest extends MockTest {
     }
 
     @Test
-    public void 팔로우요청_성공(){
-        //given
-//        given(userRelationRepo.save(userRelation)).willReturn(userRelation);
+    public void Create_관계생성_성공(){
 
-        //when
-//        final String returnMessage = relationService.followRequest(userRelation);
-
-        //then
-//        assertEquals(FOLLOW_REQUEST_OK_MSG, returnMessage);
-    }
-    @Test
-    public void 팔로우요청수락_성공(){
-        //given
         given(userRelationRepo.save(userRelation)).willReturn(userRelation);
         given(userRelationRepo.findByMasterAndSlave(master, slave)).willReturn(Optional.of(userRelation));
 
-        //when
-        final String returnMessage = relationService.responseForFollowRequest(master, slave, true);
+        final UserRelation returnRelation = relationService.createRelation(master, slave, relationState);
 
-        //then
-        assertEquals(FOLLOW_RESPONSE_OK_MSG, returnMessage);
+        assertEquals(userRelation, returnRelation);
     }
 
     @Test
-    public void 팔로우요청거절_성공(){
-        //given
-        given(userRelationRepo.save(userRelation)).willReturn(userRelation);
-        given(userRelationRepo.findByMasterAndSlave(master, slave)).willReturn(Optional.of(userRelation));
+    public void Delete_관계삭제_성공(){
+        given(userRelationRepo.existsByMasterAndSlave(master, slave)).willReturn(true);
 
-        //when
-        final String returnMessage = relationService.responseForFollowRequest(master, slave, false);
+        final String returnString = relationService.deleteRelation(master, slave);
 
-        //then
-        assertEquals(FOLLOW_RESPONSE_NO_MSG, returnMessage);
+        assertEquals("OK", returnString);
     }
 
     @Test
-    public void 관계상태변경_성공() {
-        //given
+    public void Update_관계변경_성공(){
         final RelationState changeState = RelationState.BLOCK;
-        given(userRelationRepo.save(userRelation)).willReturn(userRelation);
         given(userRelationRepo.findByMasterAndSlave(master, slave)).willReturn(Optional.of(userRelation));
 
-        //when
-        final String returnMessage = relationService.updateState(master, slave, changeState);
+        final String returnString = relationService.updateState(master, slave, changeState);
 
-        //then
-        assertEquals(STATE_CHANGE_OK_MSG, returnMessage);
-
+        assertEquals(STATE_CHANGE_OK_MSG, returnString);
     }
 
+
+    //TODO 팔로우 요청, 팔로우요청 수락, 팔로우요청 거절, 차단, 차단해제, followerList출력 test code작성해야함
+
     @Test
-    public void 관계삭제_성공(){
-        final UserRelation forwardRelation = UserRelation.builder()
-                .id(1L)
-                .master(master)
-                .slave(slave)
-                .state(RelationState.BLOCK)
-                .build();
+    public void 차단_성공(){
+
     }
 
     @Test
@@ -122,28 +98,5 @@ public class RelationServiceTest extends MockTest {
                 .state(RelationState.BLOCKED)
                 .build();
 
-//        given(userRelationRepo.findByMasterAndSlave(master, slave))
-
-
-
     }
-
-    @Test
-    public void 관계목록출력_성공() {
-        //given
-        final List<Member> relationMemberList = new ArrayList<>();
-        relationMemberList.add(slave);
-        final List<MemberDTO> memberDTOList = new ArrayList<>();
-        relationMemberList.forEach(x -> memberDTOList.add(new MemberDTO(x)));
-
-        given(userRelationRepo.findSlaveByMasterAndState(master, relationState)).willReturn(Optional.of(relationMemberList));
-
-
-        //when
-        final List<MemberDTO> returnMemberDTOList = relationService.showRelationList(master, relationState);
-
-        //then
-        assertArrayEquals(memberDTOList.toArray(), returnMemberDTOList.toArray());
-    }
-
 }

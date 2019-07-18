@@ -22,9 +22,6 @@ public class MemberDTO {
 
     @Override
     public boolean equals(Object obj) {
-        if(this.getId() != ((MemberDTO) obj).getId()) {
-            return false;
-        }
-        return true;
+        return (this.getId() == ((MemberDTO) obj).getId());
     }
 }
