@@ -49,30 +49,31 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "profile_img")
     private String profileImg;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "member_roles")
-    private List<String> roles = new ArrayList<>();
+    @Column(name = "role")
+    private String role;
 
     @Builder
     public Member(Long id, String email, String password,
                   String nickname, String profileImg,
-                  List<String> roles){
+                  String role){
         super(id);
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profileImg = profileImg;
-        this.roles = roles;
+        this.role = role;
     }
 
     public String toString(){
         return "email( " + email + " ),  pw ( " + password + " )";
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
+        List<SimpleGrantedAuthority> rst = new ArrayList<>();
+        rst.add(new SimpleGrantedAuthority(this.role));
+
+        return  rst.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
     }

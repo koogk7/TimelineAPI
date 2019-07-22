@@ -30,7 +30,7 @@ public class SignUpDTO {
 
     @ApiModelProperty("유저 권한")
     @NotNull
-    private List<String> roles;
+    private String role;
 
 
     public Member transMember(){
@@ -38,7 +38,7 @@ public class SignUpDTO {
                 .email(this.email)
                 .nickname(this.nickname)
                 .profileImg(this.profileImg)
-                .roles(this.roles)
+                .role(this.role)
                 .build();
     }
 }

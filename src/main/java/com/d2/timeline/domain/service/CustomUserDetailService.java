@@ -2,7 +2,6 @@ package com.d2.timeline.domain.service;
 
 import com.d2.timeline.domain.dao.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,7 +15,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        //Todo 예외처리 필요
-        return (UserDetails) memberRepository.findByEmail(email).get();
+        return (UserDetails) memberRepository.findByEmail(email).
+                orElseThrow(()-> new UsernameNotFoundException("토큰의 이메일이 없습니다.") );
     }
 }

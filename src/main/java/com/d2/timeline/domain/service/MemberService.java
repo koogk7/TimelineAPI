@@ -3,9 +3,7 @@ package com.d2.timeline.domain.service;
 import com.d2.timeline.domain.config.security.JwtTokenProvider;
 import com.d2.timeline.domain.dao.MemberRepository;
 import com.d2.timeline.domain.dto.SignUpDTO;
-import com.d2.timeline.domain.exception.AuthNotAllowed;
-import com.d2.timeline.domain.exception.AuthSizeException;
-import com.d2.timeline.domain.exception.EmailDuplicationException;
+import com.d2.timeline.domain.exception.*;
 import com.d2.timeline.domain.vo.Member;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -35,18 +33,18 @@ public class MemberService {
     }
 
     public String signIn(String email, String password){
-        Member member = memberRepo.findByEmail(email).get();
-        String encodePassword = passwordEncoder.encode(password);
-        logger.info(member.toString());
+        Member member = memberRepo.findByEmail(email).orElseThrow(
+                () -> new EntityNotFoundException("존재하지 않는 이메일입니다."));
 
-        if(!passwordEncoder.matches(password, encodePassword))
-            return "올바르지 않은 계정";
-        return jwtTokenProvider.createToken(member.getEmail(), member.getRoles());
+        if(!passwordEncoder.matches(password, member.getPassword()))
+            throw new LoginInvalidException("비밀번호가 일치하지 않습니다");
+
+        return jwtTokenProvider.createToken(member.getEmail(), member.getRole());
     }
 
     public String signUp(SignUpDTO signUpDTO, String password){
         validateEmail(signUpDTO.getEmail());
-        validateRole(signUpDTO.getRoles());
+        validateRole(signUpDTO.getRole());
         Member member = signUpDTO.transMember();
         member.setPassword(passwordEncoder.encode(password));
         memberRepo.save(member);
@@ -58,10 +56,8 @@ public class MemberService {
             throw new EmailDuplicationException("이미 존재하는 이메일입니다.");
     }
 
-    private void validateRole(List<String> roles){
-        if (roles.size() > 1)
-            throw new AuthSizeException("하나의 권한만 가질 수 있습니다.");
-        if (!roles.get(0).equals("USER"))
+    private void validateRole(String roles){
+        if (!roles.equals("USER"))
             throw new AuthNotAllowed("권한이 올바르지 않습니다.");
     }
 }
