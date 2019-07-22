@@ -109,7 +109,6 @@ public class RelationAPI {
         return ResponseEntity.ok(msg);
     }
 
-    //TODO State종류가 뭐뭐있는지 swagger에 알려줘야함
     @GetMapping(value = "/{" + MEMBER_ID + "}/{" + RELATION_STATE + "}")
     @ApiOperation(value = "관계리스트 조회")
     @ApiImplicitParams({
@@ -120,8 +119,8 @@ public class RelationAPI {
             @ApiImplicitParam(name = SORT_NAME, value = SORT_DESC, allowMultiple = true,
                     dataType = "string", paramType = "query")
     })
-    public ResponseEntity<?> loadRelationListByState(@PathParam(MEMBER_ID) Long memberId,
-                                                     @PathParam(RELATION_STATE) RelationState state,
+    public ResponseEntity<?> loadRelationListByState(@PathVariable(MEMBER_ID) Long memberId,
+                                                     @PathVariable(RELATION_STATE) RelationState state,
                                                      Pageable pageable,
                                                      PagedResourcesAssembler assembler){
 
@@ -132,8 +131,8 @@ public class RelationAPI {
 
     @GetMapping(value = "/{" + MASTER_ID + "}/{" + SLAVE_ID + "}")
     @ApiOperation(value = "관계 조회")
-    public ResponseEntity<?> loadRelationState(@PathParam(MASTER_ID) Long masterId,
-                                               @PathParam(SLAVE_ID) Long slaveId){
+    public ResponseEntity<?> loadRelationState(@PathVariable(MASTER_ID) Long masterId,
+                                               @PathVariable(SLAVE_ID) Long slaveId){
 
         logger.info("Entry loadRelationState, masterId : " + masterId);
         return ResponseEntity.ok(relationService.verifyRelation(masterId, slaveId));
