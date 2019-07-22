@@ -30,7 +30,7 @@ public class BoardService {
 
     public String saveBoard(String writerEmail, BoardWriteDTO newBoardDTO){
         Member writer =  memberRepository.findByEmail(writerEmail).
-                orElseThrow(()-> new NoResultException(ERROR_MSG));
+                orElseThrow(()-> new EntityNotFoundException("작성자가 존재하지 않습니다."));
         Board newBoard = Board.builder()
                 .writer(writer)
                 .build();
@@ -41,7 +41,7 @@ public class BoardService {
 
     public String updateBoard(String requestEmail, Long boardId, BoardWriteDTO updateBoardDTO){
         Board updateBoard = boardRepository.findById(boardId).orElseThrow(
-                ()-> new UnmatchedWriterException("작성자가 아닙니다."));
+                ()-> new EntityNotFoundException("작성자가 아닙니다."));
 
         validateRequest(requestEmail, updateBoard);
         updateBoard = updateBoardDTO.transBoard(updateBoard);

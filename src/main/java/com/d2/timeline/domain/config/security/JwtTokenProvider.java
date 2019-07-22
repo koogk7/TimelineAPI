@@ -47,9 +47,9 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String userPk, List<String> roles){
+    public String createToken(String userPk, String role){
         Claims claims = Jwts.claims().setSubject(userPk);
-        claims.put("roles", roles);
+        claims.put("role", role);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims) // 데이터
@@ -62,8 +62,6 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token){
         UserDetails userDetails = userDetailsService.
                 loadUserByUsername(this.getUsePk(token));
-
-        logger.info(userDetails.toString());
 
         return new UsernamePasswordAuthenticationToken(userDetails,
                 "", userDetails.getAuthorities());

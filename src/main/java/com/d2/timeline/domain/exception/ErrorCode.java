@@ -21,8 +21,8 @@ public enum ErrorCode {
     EMAIL_DUPLICATION(400, "M001", "Email is Duplication"),
     LOGIN_INPUT_INVALID(400, "M002", "Login input is invalid"),
     AUTH_NOT_ALLOWED(400, "M003", "Role is not allowed"),
-    AUTH_SIZE_OVER(400, "M004", "Count of Role is Only One")
-
+    AUTH_SIZE_OVER(400, "M004", "Count of Role is Only One"),
+    LOGIN_INVALID(400, "M005", "Password is not Correct"),
     ;
     private final int status;
     private final String code;
