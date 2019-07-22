@@ -5,6 +5,7 @@ import com.d2.timeline.domain.dao.MemberRepository;
 import com.d2.timeline.domain.dto.BoardReadDTO;
 import com.d2.timeline.domain.dto.BoardWriteDTO;
 import com.d2.timeline.domain.exception.EntityNotFoundException;
+import com.d2.timeline.domain.exception.UnmatchedRequestorException;
 import com.d2.timeline.domain.exception.UnmatchedWriterException;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
@@ -69,9 +70,28 @@ public class BoardService {
         return resultBoardList.map(BoardReadDTO::new);
     }
 
+    /*
+    public Page<BoardReadDTO> loadFollowingBoardList(String requestEmail, Long masterId, Pageable pageable){
+        Member master = memberRepository.findById(masterId).orElseThrow(
+                ()-> new NoResultException(ERROR_MSG));
+        checkLoadAuthority(requestEmail, master);
+
+        //TODO database (userRelation - board) join 해서 구현하려다가 구조 아직 안정해서 말았음
+        Page<Board> resultBoardList ;
+        return resultBoardList.map(BoardReadDTO::new);
+    }
+    */
+    private void checkLoadAuthority(String request, Member member){
+        String requestorEmail = member.getEmail();
+        if(!request.equals(requestorEmail))
+            throw new UnmatchedRequestorException("조회를 요청 할 권한이 없습니다.");
+    }
+
     private void validateRequest(String request, Board board){
         String writerEmail = board.getWriter().getEmail();
         if(!request.equals(writerEmail))
             throw new UnmatchedWriterException("작성자가 아닙니다");
     }
+
+
 }

@@ -5,15 +5,17 @@ import com.d2.timeline.domain.dao.MemberRepository;
 import com.d2.timeline.domain.dao.UserRelationRepository;
 import com.d2.timeline.domain.dto.MemberDTO;
 import com.d2.timeline.domain.dto.UserRelationDTO;
+import com.d2.timeline.domain.exception.NotExistRelationException;
+import com.d2.timeline.domain.exception.UnmatchedRequestorException;
 import com.d2.timeline.domain.vo.Member;
 import com.d2.timeline.domain.vo.UserRelation;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
@@ -21,6 +23,7 @@ import java.util.*;
 
 import static com.d2.timeline.domain.Constant.RelationServiceConstant.*;
 
+@RequiredArgsConstructor
 @Service
 public class RelationService {
 
@@ -33,7 +36,7 @@ public class RelationService {
     @Autowired
     UserRelationRepository userRelationRepo;
 
-    public UserRelation createRelation(Member master, Member slave, RelationState state){
+    private UserRelation createRelation(Member master, Member slave, RelationState state){
 
         Optional<UserRelation> maybeUserRelation = userRelationRepo.findByMasterAndSlave(master, slave);
         UserRelation userRelation = maybeUserRelation.orElseGet(()->{
@@ -49,19 +52,16 @@ public class RelationService {
         return userRelation;
     }
 
-    public String deleteRelation(Member master, Member slave){
+    private String deleteRelation(Member master, Member slave){
 
         boolean exist = userRelationRepo.existsByMasterAndSlave(master, slave);
 
-        if(!exist) {
-            return ERROR_NOT_EXIST;
-        }
-
+        isExist(exist);
         userRelationRepo.deleteByMasterAndSlave(master, slave);
         return OK_MSG_RELATION;
     }
 
-    public String updateState(Member master, Member slave, RelationState state){
+    private String updateRelation(Member master, Member slave, RelationState state){
 
         Optional<UserRelation> maybeUserRelation = userRelationRepo.findByMasterAndSlave(master, slave);
         UserRelation userRelation  = maybeUserRelation.orElseGet(
@@ -73,39 +73,39 @@ public class RelationService {
         return STATE_CHANGE_OK_MSG;
     }
 
-    public String followRequest(UserRelationDTO userRelationDTO){
+    public String followRequest(String requestEmail, UserRelationDTO userRelationDTO){
         Member master = (memberRepository.findById(userRelationDTO.getMasterId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
         Member slave = (memberRepository.findById(userRelationDTO.getSlaveId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
 
+        validateMember(requestEmail, master);
+
         createRelation(master, slave, RelationState.REQUEST);
         return FOLLOW_REQUEST_OK_MSG;
     }
 
-    public String responseForFollowRequest(UserRelationDTO userRelationDTO, boolean allow){
+    public String responseForFollowRequest(String requestEmail,UserRelationDTO userRelationDTO, boolean allow){
         Member requester = (memberRepository.findById(userRelationDTO.getMasterId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
         Member respondent = (memberRepository.findById(userRelationDTO.getSlaveId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
 
         boolean exist = userRelationRepo.existsByMasterAndSlaveAndState(requester, respondent, RelationState.REQUEST);
-
-        if(!exist) {
-            return ERROR_NOT_EXIST;
-        }
+        isExist(exist);
 
         if(!allow){
             deleteRelation(requester, respondent);
             return FOLLOW_RESPONSE_NO_MSG;
         }
+        validateMember(requestEmail, respondent);
 
-        updateState(requester, respondent, RelationState.FOLLOW);
+        updateRelation(requester, respondent, RelationState.FOLLOW);
 
         return FOLLOW_RESPONSE_OK_MSG;
     }
 
-    public String unfollow(UserRelationDTO userRelationDTO){
+    public String unfollow(String requestEmail,UserRelationDTO userRelationDTO){
         Member master = (memberRepository.findById(userRelationDTO.getMasterId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
         Member slave = (memberRepository.findById(userRelationDTO.getSlaveId())).orElseThrow(
@@ -113,28 +113,31 @@ public class RelationService {
         UserRelation userRelation = userRelationRepo.findByMasterAndSlave(master, slave).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
 
-        if(userRelation.getState() != RelationState.FOLLOW){
-            return ERROR_BAD_REQUEST;
-        }
+        boolean existFollow = (userRelation.getState() == RelationState.FOLLOW);
+
+        isExist(existFollow);
+        validateMember(requestEmail, master);
 
         deleteRelation(master, slave);
         return OK_MSG_RELATION;
     }
 
-    public String block(UserRelationDTO userRelationDTO){
+    public String block(String requestEmail, UserRelationDTO userRelationDTO){
 
         Member master = (memberRepository.findById(userRelationDTO.getMasterId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
         Member slave = (memberRepository.findById(userRelationDTO.getSlaveId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
 
-        updateState(master, slave, RelationState.BLOCK);
-        updateState(slave, master, RelationState.BLOCKED);
+        validateMember(requestEmail, master);
+
+        updateRelation(master, slave, RelationState.BLOCK);
+        updateRelation(slave, master, RelationState.BLOCKED);
         return OK_MSG_RELATION;
 
     }
 
-    public String unblock(UserRelationDTO userRelationDTO){
+    public String unblock(String requestEmail, UserRelationDTO userRelationDTO){
 
         Member master = (memberRepository.findById(userRelationDTO.getMasterId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
@@ -147,9 +150,8 @@ public class RelationService {
 
         boolean canUnblockState = (userRelation.getState() == RelationState.BLOCK)
                 && (reverseRelation.getState() == RelationState.BLOCKED);
-        if(!canUnblockState){
-            return ERROR_BAD_REQUEST;
-        }
+        isExist(canUnblockState);
+        validateMember(requestEmail, master);
 
         deleteRelation(master, slave);
         deleteRelation(slave, master);
@@ -179,7 +181,31 @@ public class RelationService {
     }
 
 
+    private void validateMember(String request, Member member){
+        String requestorEmail = member.getEmail();
+        if(!request.equals(requestorEmail)){
+            throw new UnmatchedRequestorException("권한이 없는 계정입니다.");
+        }
+    }
 
+    private void isExist(boolean exist){
+        if(!exist){
+            throw new NotExistRelationException("존재하지 않는 관계입니다.");
 
+        }
+    }
 
+    public RelationState verifyRelation(Long masterId, Long slaveId){
+
+        Member master = (memberRepository.findById(masterId)).orElseThrow(
+                ()-> new NoResultException(ERROR_NOT_EXIST));
+        Member slave = (memberRepository.findById(slaveId)).orElseThrow(
+                ()-> new NoResultException(ERROR_NOT_EXIST));
+        boolean existRelation = userRelationRepo.existsByMasterAndSlave(master, slave);
+;
+        if(!existRelation){
+            return RelationState.NONE;
+        }
+        return userRelationRepo.findStateByMasterAndSlave(master, slave);
+    }
 }
