@@ -23,6 +23,10 @@ public enum ErrorCode {
     AUTH_NOT_ALLOWED(400, "M003", "Role is not allowed"),
     AUTH_SIZE_OVER(400, "M004", "Count of Role is Only One"),
     LOGIN_INVALID(400, "M005", "Password is not Correct"),
+
+    //Relation
+    UNMATCHED_REQUESTOR(400, "R001", "Requestor has not Authority"),
+    NOT_EXIST_RELATION(400, "R002", "Not Exist Relation"),
     ;
     private final int status;
     private final String code;

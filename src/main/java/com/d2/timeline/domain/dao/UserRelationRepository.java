@@ -26,6 +26,9 @@ public interface UserRelationRepository extends JpaRepository<UserRelation, Long
     @Query("select r.master from UserRelation r where r.slave = (:slave) and r.state = (:state)")
     Page<Member> findMasterBySlaveAndState(@Param("slave")Member slave, @Param("state")RelationState state, Pageable pageable);
 
+    @Query("select r.state from UserRelation  r where r.master = (:master) and r.slave = (:slave)")
+    RelationState findStateByMasterAndSlave(@Param("master")Member master, @Param("slave")Member slave);
+
     boolean existsByMasterAndSlave(Member master, Member slave);
     boolean existsByMasterAndSlaveAndState(Member master, Member slave, RelationState state);
 

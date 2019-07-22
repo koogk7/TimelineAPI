@@ -1,21 +1,19 @@
 package com.d2.timeline.domain.api;
 
 
+import com.d2.timeline.domain.common.AuthenticationHelper;
 import com.d2.timeline.domain.common.RelationState;
-import com.d2.timeline.domain.common.ResponseHelper;
 import com.d2.timeline.domain.dto.MemberDTO;
 import com.d2.timeline.domain.dto.UserRelationDTO;
 import com.d2.timeline.domain.service.RelationService;
 
-import com.d2.timeline.domain.vo.UserRelation;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.catalina.User;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -24,70 +22,91 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
 
-import java.util.List;
-
 import static com.d2.timeline.domain.Constant.SwaggerBoardConstant.DEFAULT_PAGE_SIZE;
 import static com.d2.timeline.domain.Constant.SwaggerPageConstant.*;
 import static com.d2.timeline.domain.Constant.SwaggerRelationConstant.*;
 
 @Api(value = "UserRelation for API")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "api/relations")
 public class RelationAPI {
 
     private static final Logger logger = LoggerFactory.getLogger(BoardAPI.class);
 
-    @Autowired
-    RelationService relationService;
+    private final RelationService relationService;
+    private final AuthenticationHelper authHelper;
 
-    @Autowired
-    ResponseHelper helper;
-
-    @PostMapping(value = "request")
+    @PostMapping(value = "follow/request")
     @ApiOperation(value = "팔로우 요청")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
+                    required = true, dataType = "String", paramType = "header")
+    })
     public ResponseEntity<?> followRequest(@RequestBody UserRelationDTO userRelationDTO){
 
         logger.info("Entry followRequest, masterId : " + userRelationDTO.getMasterId().toString());
-        String msg = relationService.followRequest(userRelationDTO);
-        return helper.getResEntity(msg);
+        String requestEmail = authHelper.getEmailFormToken();
+        String msg = relationService.followRequest(requestEmail, userRelationDTO);
+        return ResponseEntity.ok(msg);
     }
 
-    @PutMapping(value = "response/{" + RESPONSE_BOOLEAN + "}")
+    @PutMapping(value = "follow/response")
     @ApiOperation(value = "팔로우 요청 응답")
-    public ResponseEntity<?> responseFollowing(@PathVariable(RESPONSE_BOOLEAN) boolean allow,
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
+                    required = true, dataType = "String", paramType = "header")
+    })
+    public ResponseEntity<?> responseFollowing(boolean allow,
                                                @RequestBody UserRelationDTO userRelationDTO){
 
         logger.info("Entry responseFollowing, requesterId : " + userRelationDTO.getMasterId().toString()
                 + ", repondentId : " + userRelationDTO.getSlaveId().toString() );
-        String msg = relationService.responseForFollowRequest(userRelationDTO, allow);
-        return helper.getResEntity(msg);
+        String requestEmail = authHelper.getEmailFormToken();
+        String msg = relationService.responseForFollowRequest(requestEmail, userRelationDTO, allow);
+        return ResponseEntity.ok(msg);
     }
 
     @DeleteMapping(value = "")
     @ApiOperation("팔로우 해제")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
+                    required = true, dataType = "String", paramType = "header")
+    })
     public ResponseEntity<?> unfollow(@RequestBody UserRelationDTO userRelationDTO){
 
         logger.info("Entry unfollow, masterId : " + userRelationDTO.getMasterId().toString());
-        String msg = relationService.unfollow(userRelationDTO);
-        return helper.getResEntity(msg);
+        String requestEmail = authHelper.getEmailFormToken();
+        String msg = relationService.unfollow(requestEmail, userRelationDTO);
+        return ResponseEntity.ok(msg);
     }
 
     @PutMapping(value = "block")
     @ApiOperation(value = "관계변경 : 차단")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
+                    required = true, dataType = "String", paramType = "header")
+    })
     public ResponseEntity<?> block(@RequestBody UserRelationDTO userRelationDTO){
 
         logger.info("Entry block, masterId : " + userRelationDTO.getMasterId().toString());
-        String msg = relationService.block(userRelationDTO);
-        return helper.getResEntity(msg);
+        String requestEmail = authHelper.getEmailFormToken();
+        String msg = relationService.block(requestEmail, userRelationDTO);
+        return ResponseEntity.ok(msg);
     }
 
     @DeleteMapping(value = "unblock")
     @ApiOperation(value = "관계변경 : 차단해제")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
+                    required = true, dataType = "String", paramType = "header")
+    })
     public ResponseEntity<?> unblock(@RequestBody UserRelationDTO userRelationDTO){
 
         logger.info("Entry unblock, masterId : " + userRelationDTO.getMasterId().toString());
-        String msg = relationService.unblock(userRelationDTO);
-        return helper.getResEntity(msg);
+        String requestEmail = authHelper.getEmailFormToken();
+        String msg = relationService.unblock(requestEmail, userRelationDTO);
+        return ResponseEntity.ok(msg);
     }
 
     //TODO State종류가 뭐뭐있는지 swagger에 알려줘야함
@@ -110,6 +129,16 @@ public class RelationAPI {
         Page<MemberDTO> members = relationService.showRelationList(memberId, state, pageable);
         return ResponseEntity.ok(assembler.toResource(members));
     }
+
+    @GetMapping(value = "/{" + MASTER_ID + "}/{" + SLAVE_ID + "}")
+    @ApiOperation(value = "관계 조회")
+    public ResponseEntity<?> loadRelationState(@PathParam(MASTER_ID) Long masterId,
+                                               @PathParam(SLAVE_ID) Long slaveId){
+
+        logger.info("Entry loadRelationState, masterId : " + masterId);
+        return ResponseEntity.ok(relationService.verifyRelation(masterId, slaveId));
+    }
+
 
 
 

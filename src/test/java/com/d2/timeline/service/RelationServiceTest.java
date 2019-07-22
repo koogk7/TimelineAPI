@@ -2,7 +2,6 @@ package com.d2.timeline.service;
 
 import com.d2.timeline.domain.common.RelationState;
 import com.d2.timeline.domain.dao.UserRelationRepository;
-import com.d2.timeline.domain.dto.MemberDTO;
 import com.d2.timeline.domain.service.RelationService;
 import com.d2.timeline.domain.vo.Member;
 import com.d2.timeline.domain.vo.UserRelation;
@@ -11,8 +10,6 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static com.d2.timeline.domain.Constant.RelationServiceConstant.*;
@@ -70,7 +67,7 @@ public class RelationServiceTest extends MockTest {
         final RelationState changeState = RelationState.BLOCK;
         given(userRelationRepo.findByMasterAndSlave(master, slave)).willReturn(Optional.of(userRelation));
 
-        final String returnString = relationService.updateState(master, slave, changeState);
+        final String returnString = relationService.updateRelation(master, slave, changeState);
 
         assertEquals(STATE_CHANGE_OK_MSG, returnString);
     }
