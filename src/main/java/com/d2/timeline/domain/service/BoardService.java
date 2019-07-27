@@ -37,7 +37,7 @@ public class BoardService {
 
     public String saveBoard(String writerEmail, BoardWriteDTO newBoardDTO){
         Member writer =  memberRepository.findByEmail(writerEmail).
-                orElseThrow(()-> new EntityNotFoundException("작성자가 존재하지 않습니다."));
+                orElseThrow(()-> new EntityNotFoundException(ERROR_NOT_EXIST));
         Board newBoard = Board.builder()
                 .writer(writer)
                 .build();
@@ -48,7 +48,7 @@ public class BoardService {
 
     public String updateBoard(String requestEmail, Long boardId, BoardWriteDTO updateBoardDTO){
         Board updateBoard = boardRepository.findById(boardId).orElseThrow(
-                ()-> new EntityNotFoundException("작성자가 아닙니다."));
+                ()-> new EntityNotFoundException(ERROR_NOT_EXIST));
 
         validateRequest(requestEmail, updateBoard);
         updateBoard = updateBoardDTO.transBoard(updateBoard);
@@ -58,7 +58,7 @@ public class BoardService {
 
     public String deleteBoard(String requestEmail, Long deleteBoard){
         Board board = boardRepository.findById(deleteBoard).orElseThrow(
-                ()-> new EntityNotFoundException("존재하지 않는 게시물입니다."));
+                ()-> new EntityNotFoundException(ERROR_NOT_EXIST));
 
         validateRequest(requestEmail, board);
         boardRepository.deleteById(deleteBoard);
@@ -67,7 +67,7 @@ public class BoardService {
 
     public BoardReadDTO findByBoardId(Long boardId){
         Board targetBoard = boardRepository.findById(boardId).orElseThrow(
-                ()-> new EntityNotFoundException("존재하지 않는 게시물입니다."));
+                ()-> new EntityNotFoundException(ERROR_NOT_EXIST));
         return new BoardReadDTO(targetBoard);
     }
 
@@ -76,27 +76,16 @@ public class BoardService {
         return resultBoardList.map(BoardReadDTO::new);
     }
 
-    /*
-    public Page<BoardReadDTO> loadFollowingBoardList(String requestEmail, Long masterId, Pageable pageable){
-        Member master = memberRepository.findById(masterId).orElseThrow(
-                ()-> new NoResultException(ERROR_MSG));
-        checkLoadAuthority(requestEmail, master);
-
-        //TODO database (userRelation - board) join 해서 구현하려다가 구조 아직 안정해서 말았음
-        Page<Board> resultBoardList ;
-        return resultBoardList.map(BoardReadDTO::new);
-    }
-    */
     private void checkLoadAuthority(String request, Member member){
         String requestorEmail = member.getEmail();
         if(!request.equals(requestorEmail))
-            throw new UnmatchedRequestorException("조회를 요청 할 권한이 없습니다.");
+            throw new UnmatchedRequestorException(ERROR_BAD_REQUEST);
     }
 
     private void validateRequest(String request, Board board){
         String writerEmail = board.getWriter().getEmail();
         if(!request.equals(writerEmail))
-            throw new UnmatchedWriterException("작성자가 아닙니다");
+            throw new UnmatchedWriterException(ERROR_BAD_REQUEST);
     }
 
 
