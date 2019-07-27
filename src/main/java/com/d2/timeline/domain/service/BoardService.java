@@ -2,6 +2,7 @@ package com.d2.timeline.domain.service;
 
 import com.d2.timeline.domain.dao.BoardRepository;
 import com.d2.timeline.domain.dao.MemberRepository;
+import com.d2.timeline.domain.dao.TimelineRepository;
 import com.d2.timeline.domain.dto.BoardReadDTO;
 import com.d2.timeline.domain.dto.BoardWriteDTO;
 import com.d2.timeline.domain.exception.EntityNotFoundException;
@@ -9,14 +10,13 @@ import com.d2.timeline.domain.exception.UnmatchedRequestorException;
 import com.d2.timeline.domain.exception.UnmatchedWriterException;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
+import com.d2.timeline.domain.vo.Timeline;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.NoResultException;
 
 import static com.d2.timeline.domain.Constant.BoardConstant.*;
 
@@ -28,6 +28,12 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final TimelineRepository timelineRepository;
+
+    public Page<BoardReadDTO> loadTimeline(Member member, Pageable pageable){
+        Page<Timeline> timeLines = timelineRepository.findByReciver(member, pageable);
+        return timeLines.map(timeline -> new BoardReadDTO(timeline.getBoard()));
+    }
 
     public String saveBoard(String writerEmail, BoardWriteDTO newBoardDTO){
         Member writer =  memberRepository.findByEmail(writerEmail).

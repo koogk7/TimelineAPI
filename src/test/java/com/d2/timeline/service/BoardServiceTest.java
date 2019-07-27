@@ -1,27 +1,45 @@
 package com.d2.timeline.service;
 
 import com.d2.timeline.domain.dao.BoardRepository;
+import com.d2.timeline.domain.dao.TimelineRepository;
+import com.d2.timeline.domain.dto.BoardReadDTO;
 import com.d2.timeline.domain.dto.BoardWriteDTO;
 import com.d2.timeline.domain.service.BoardService;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
+import com.d2.timeline.domain.vo.Timeline;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.d2.timeline.domain.Constant.BoardConstant.ERROR_MSG;
 import static com.d2.timeline.domain.Constant.BoardConstant.OK_MSG;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 
 public class BoardServiceTest extends MockTest{
     final static Long boardId = 1L;
     final static String authorEmail = "master@test.com";
 
+    @Autowired
+    MockMvc mockMvc;  // page 생성을 위한 주입
 
     @InjectMocks
     private BoardService boardService;
+
+    @Mock
+    private TimelineRepository timelineRepository;
 
     @Mock
     private BoardRepository boardRepository;
@@ -53,43 +71,72 @@ public class BoardServiceTest extends MockTest{
                 .build();
     }
 
-    @Test
-    public void 유저정보수정_성공_테스트(){
-        //given
-        given(boardRepository.existsById(boardId)).willReturn(true);
-        //when
-        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
-        //then
-        assertEquals(OK_MSG, returnMessage);
-    }
+//    @Test
+//    public void 유저정보수정_성공_테스트(){
+//        //given
+//        given(boardRepository.existsById(boardId)).willReturn(true);
+//        //when
+//        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
+//        //then
+//        assertEquals(OK_MSG, returnMessage);
+//    }
+//
+//    @Test
+//    public void 유저정보수정_실패_테스트(){
+//        //given
+//        given(boardRepository.existsById(-1L)).willReturn(false);
+//        //when
+//        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
+//        //then
+//        assertEquals(ERROR_MSG, returnMessage);
+//    }
+//
+//    @Test
+//    public void 유저정보삭제_성공_테스트(){
+//        //given
+//        given(boardRepository.existsById(boardId)).willReturn(true);
+//        //when
+//        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
+//        //then
+//        assertEquals(OK_MSG, returnMessage);
+//    }
+//
+//    @Test
+//    public void 유저정보삭제_실패_테스트(){
+//        //given
+//        given(boardRepository.existsById(boardId)).willReturn(false);
+//        //when
+//        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
+//        //then
+//        assertEquals(ERROR_MSG, returnMessage);
+//    }
 
     @Test
-    public void 유저정보수정_실패_테스트(){
+    public void 타임라인_성공_테스트(){
         //given
-        given(boardRepository.existsById(-1L)).willReturn(false);
-        //when
-        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
-        //then
-        assertEquals(ERROR_MSG, returnMessage);
-    }
+        Page<BoardReadDTO> boardReadDTOPage;
+        List<Timeline> timelineList = new ArrayList<>();
+        Timeline timeline = Timeline.builder()
+                .id(1L)
+                .board(board)
+                .reciver(author)
+                .build();
+        timelineList.add(timeline);
+        timelineList.add(timeline);
+        timelineList.add(timeline);
+        PageRequest pageRequest = PageRequest.of(0, 5);
 
-    @Test
-    public void 유저정보삭제_성공_테스트(){
-        //given
-        given(boardRepository.existsById(boardId)).willReturn(true);
-        //when
-        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
-        //then
-        assertEquals(OK_MSG, returnMessage);
-    }
+        Page<Timeline> timelinePage = new PageImpl<Timeline>(timelineList, PageRequest.of(0, 5),10);
+        given(timelineRepository.findByReciver(author, pageRequest)).willReturn(timelinePage);
 
-    @Test
-    public void 유저정보삭제_실패_테스트(){
-        //given
-        given(boardRepository.existsById(boardId)).willReturn(false);
         //when
-        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
+        boardReadDTOPage = boardService.loadTimeline(author, pageRequest);
+
         //then
-        assertEquals(ERROR_MSG, returnMessage);
+        assertThat(boardReadDTOPage, contains(
+                hasProperty("id", is(1L)),
+                hasProperty("id", is(1L)),
+                hasProperty("id", is(1L))
+        ));
     }
 }
