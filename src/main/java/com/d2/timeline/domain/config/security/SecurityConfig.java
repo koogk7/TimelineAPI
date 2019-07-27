@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
                 .authorizeRequests()
                     .antMatchers("/*/login", "/*/join").permitAll()
-                    .antMatchers(HttpMethod.GET, "/*/boards/**", "/*/relations/**").permitAll()
+                    .antMatchers(HttpMethod.GET, "/*/boards/**","/*/relations/**").permitAll()
                     .anyRequest().hasRole("USER")
             .and()
                 .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())

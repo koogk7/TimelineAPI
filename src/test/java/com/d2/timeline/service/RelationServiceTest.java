@@ -5,17 +5,22 @@ import com.d2.timeline.domain.dao.UserRelationRepository;
 import com.d2.timeline.domain.service.RelationService;
 import com.d2.timeline.domain.vo.Member;
 import com.d2.timeline.domain.vo.UserRelation;
+import org.apache.catalina.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Optional;
 
 import static com.d2.timeline.domain.Constant.RelationServiceConstant.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
+import org.powermock.reflect.internal.WhiteboxImpl;
+
 
 public class RelationServiceTest extends MockTest {
 

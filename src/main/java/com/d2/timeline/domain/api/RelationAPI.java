@@ -109,9 +109,10 @@ public class RelationAPI {
         return ResponseEntity.ok(msg);
     }
 
-    @GetMapping(value = "/{" + MEMBER_ID + "}/{" + RELATION_STATE + "}")
+    @GetMapping(value = "/list/{" + MEMBER_ID + "}")
     @ApiOperation(value = "관계리스트 조회")
     @ApiImplicitParams({
+
             @ApiImplicitParam(name = PAGE_NAME, value = PAGE_DESC, defaultValue = DEFAULT_PAGE,
                     dataType = "integer", paramType = "query"),
             @ApiImplicitParam(name = SIZE_NAME, value = SIZE_DESC, defaultValue = DEFAULT_PAGE_SIZE,
@@ -120,7 +121,7 @@ public class RelationAPI {
                     dataType = "string", paramType = "query")
     })
     public ResponseEntity<?> loadRelationListByState(@PathVariable(MEMBER_ID) Long memberId,
-                                                     @PathVariable(RELATION_STATE) RelationState state,
+                                                     @RequestParam(RELATION_STATE) RelationState state,
                                                      Pageable pageable,
                                                      PagedResourcesAssembler assembler){
 
