@@ -1,7 +1,9 @@
 package com.d2.timeline.service;
 
 import com.d2.timeline.domain.common.RelationState;
+import com.d2.timeline.domain.dao.MemberRepository;
 import com.d2.timeline.domain.dao.UserRelationRepository;
+import com.d2.timeline.domain.dto.UserRelationDTO;
 import com.d2.timeline.domain.service.RelationService;
 import com.d2.timeline.domain.vo.Member;
 import com.d2.timeline.domain.vo.UserRelation;
@@ -20,33 +22,59 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import org.powermock.reflect.internal.WhiteboxImpl;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 
+@WebAppConfiguration
 public class RelationServiceTest extends MockTest {
 
-//    @InjectMocks
-//    private RelationService relationService;
-//
-//    @Mock
-//    private UserRelationRepository userRelationRepo;
-//    private Member master;
-//    private Member slave;
-//    private UserRelation userRelation;
-//    private RelationState relationState;
-//
-//    @Before
-//    public void setUp() throws Exception {
-//        master = Member.builder().id(1L).build();
-//        slave = Member.builder().id(2L).build();
-//        relationState = RelationState.REQUEST;
-//        userRelation = UserRelation.builder()
-//                .id(1L)
-//                .master(master)
-//                .slave(slave)
-//                .state(relationState)
-//                .build();
-//    }
-//
+    @InjectMocks
+    private RelationService relationService;
+
+    @Mock
+    private UserRelationRepository userRelationRepo;
+    private MemberRepository memberRepository;
+    private Member master;
+    private Member slave;
+    private UserRelation userRelation;
+    private RelationState relationState;
+    private UserRelationDTO userRelationDTO;
+
+    @Before
+    public void setUp() throws Exception {
+        master = Member.builder().id(1L).build();
+        slave = Member.builder().id(2L).build();
+        relationState = RelationState.REQUEST;
+        userRelation = userRelation.builder()
+                .id(1L)
+                .master(master)
+                .slave(slave)
+                .state(relationState)
+                .build();
+        userRelationDTO = userRelationDTO.builder()
+                .masterId(master.getId())
+                .slaveId(slave.getId())
+                .build();
+
+    }
+    /*
+    @Test
+    public void 팔로우요청_성공(){
+        //given
+        given(memberRepository.findById(master.getId())).willReturn(Optional.of(master));
+        given(memberRepository.findById(slave.getId())).willReturn(Optional.of(slave));
+        given(userRelationRepo.findByMasterAndSlave(master, slave)).willReturn(Optional.of(userRelation));
+
+
+        //when
+        final String returnMessage = relationService.followRequest(master.getEmail(), userRelationDTO);
+
+        //then
+        assertEquals(FOLLOW_RESPONSE_NO_MSG, returnMessage);
+    }
+
+*/
+
 //    @Test
 //    public void Create_관계생성_성공(){
 //
