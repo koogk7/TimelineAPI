@@ -27,9 +27,6 @@ import static com.d2.timeline.domain.Constant.RelationServiceConstant.*;
 @Service
 public class RelationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(MemberFindService.class);
-
-
     @Autowired
     MemberRepository memberRepository;
 

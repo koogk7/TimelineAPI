@@ -25,15 +25,9 @@ public class BoardWriteDTO {
     @ApiModelProperty(value = "본문 사진")
     private MultipartFile contentImg;
 
-    public Board transBoard(Board board) {
-        board.setContentText(this.contentText);
-//        board.setContentImg(this.contentImg);
-        return board;
-    }
-
     @Builder
-    public BoardWriteDTO(String contentText, String contentImg){
+    public BoardWriteDTO(String contentText, MultipartFile contentImg){
         this.contentText = contentText;
-//        this.contentImg = contentImg;
+        this.contentImg = contentImg;
     }
 }

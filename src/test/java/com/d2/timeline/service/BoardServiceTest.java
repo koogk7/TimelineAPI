@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,7 @@ public class BoardServiceTest extends MockTest{
     private Board board;
     private Member author;
     private BoardWriteDTO boardUpdateDTO;
+    MultipartFile multipartFile;
 
     @Before
     public void setUp() throws Exception {
@@ -66,9 +69,10 @@ public class BoardServiceTest extends MockTest{
                 .contentText("Testing...")
                 .build();
 
-        BoardWriteDTO boardUpdateDTO = BoardWriteDTO.builder()
+        multipartFile = new MockMultipartFile("test", "test".getBytes());
+        boardUpdateDTO = BoardWriteDTO.builder()
                 .contentText(board.getContentText())
-                .contentImg(board.getContentImg())
+                .contentImg(multipartFile)
                 .build();
     }
 
@@ -78,9 +82,9 @@ public class BoardServiceTest extends MockTest{
         given(boardRepository.findById(board.getId())).willReturn(Optional.empty());
 
         //when
-        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
+        final String returnMessage = boardService.updateBoard(authorEmail, boardId,
+                boardUpdateDTO.getContentText(), boardUpdateDTO.getContentImg());
 
-        //then
     }
 
     @Test(expected = UnmatchedWriterException.class)
@@ -89,9 +93,9 @@ public class BoardServiceTest extends MockTest{
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
 
         //when
-        final String returnMessage = boardService.updateBoard("failTest@test.com", boardId, boardUpdateDTO);
+        final String returnMessage = boardService.updateBoard("failTest@test.com", boardId, boardUpdateDTO.getContentText(),
+                boardUpdateDTO.getContentImg());
 
-        //then
     }
 
     @Test

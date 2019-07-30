@@ -2,6 +2,7 @@ package com.d2.timeline.domain.service;
 
 import com.d2.timeline.domain.config.security.JwtTokenProvider;
 import com.d2.timeline.domain.dao.MemberRepository;
+import com.d2.timeline.domain.dao.UserRelationRepository;
 import com.d2.timeline.domain.dto.SignUpDTO;
 import com.d2.timeline.domain.exception.*;
 import com.d2.timeline.domain.vo.Member;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ public class MemberService {
     private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
 
     private final MemberRepository memberRepo;
+    private final UserRelationRepository userRelationRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
