@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import static com.d2.timeline.domain.Constant.BoardConstant.OK_MSG;
+import static com.d2.timeline.domain.Constant.MemberConstant.*;
 
 @RequiredArgsConstructor
 @Service
@@ -27,17 +27,18 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-
     public boolean existsByEmail(String email){
         return memberRepo.existsByEmail(email);
     }
 
-    public String signIn(String email, String password){
+    public String signIn(String email, String requestPw){
         Member member = memberRepo.findByEmail(email).orElseThrow(
                 () -> new EntityNotFoundException("존재하지 않는 이메일입니다."));
 
-        if(!passwordEncoder.matches(password, member.getPassword()))
+        if(!passwordEncoder.matches(requestPw, member.getPassword())) {
+            logger.error(requestPw);
             throw new LoginInvalidException("비밀번호가 일치하지 않습니다");
+        }
 
         return jwtTokenProvider.createToken(member.getEmail(), member.getRole());
     }
@@ -48,7 +49,7 @@ public class MemberService {
         Member member = signUpDTO.transMember();
         member.setPassword(passwordEncoder.encode(password));
         memberRepo.save(member);
-        return OK_MSG;
+        return SIGNUP_OK_MSG;
     }
 
     private void validateEmail(String email){

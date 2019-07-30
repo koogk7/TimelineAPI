@@ -61,10 +61,12 @@ public class RelationServiceTest extends MockTest {
         masterEmail = "test1@test.com";
         slaveEmail = "test2@test.com";
 
-        master = Member.builder().id(1L)
+        master = Member.builder()
+                .id(1L)
                 .email(masterEmail)
                 .build();
-        slave = Member.builder().id(2L)
+        slave = Member.builder()
+                .id(2L)
                 .email(slaveEmail)
                 .build();
         relationState = RelationState.REQUEST;
@@ -107,7 +109,6 @@ public class RelationServiceTest extends MockTest {
         //given
         given(memberRepository.findById(master.getId())).willReturn(Optional.of(master));
         given(memberRepository.findById(slave.getId())).willReturn(Optional.of(slave));
-        given(userRelationRepo.findByMasterAndSlave(master, slave)).willReturn(Optional.of(requestRelation));
 
         //when
         final String returnMessage = relationService.followRequest("test3@test.com", userRelationDTO);

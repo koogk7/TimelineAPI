@@ -35,8 +35,8 @@ public class BoardServiceTest extends MockTest{
     final static Long boardId = 1L;
     final static String authorEmail = "master@test.com";
 
-    @Autowired
-    MockMvc mockMvc;  // page 생성을 위한 주입
+//    @Autowired
+//    MockMvc mockMvc;  // page 생성을 위한 주입
 
     @InjectMocks
     private BoardService boardService;

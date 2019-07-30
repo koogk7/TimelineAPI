@@ -49,43 +49,43 @@ public class BoardRepositoryTest extends RepositoryTest{
         board = boardRepository.save(board);
     }
 
-    @Test
-    public void 게시물저장_테스트(){
-        //given
-        Board beforeBoard = Board.builder()
-                .writer(author)
-                .contentImg("None")
-                .contentText("Testing...")
-                .build();
-
-        //when
-        Board afterSave = boardRepository.save(beforeBoard);
-
-        //then
-        assertEquals(afterSave.getContentText(), "Testing...");
-        assertEquals(afterSave.getCreatedDT().toLocalDate(), LocalDate.now());
-    }
-
-    @Test
-    public void 게시물수정_테스트(){
-        //when
-        board.setContentText(updateContent);
-        board = boardRepository.save(board);
-
-        //then
-        assertEquals(updateContent, board.getContentText());
-        assertEquals(LocalDate.now(), board.getUpdatedDT().toLocalDate());
-    }
-
-    @Test
-    public void 게시물삭제_테스트(){
-        //when
-        boardRepository.delete(board);
-        Long expectId = -1L;
-        Board afterBoard = boardRepository.findById(board.getId()).orElseGet(
-                ()-> Board.builder().id(expectId).build());
-
-        //then
-        assertEquals(expectId, afterBoard.getId());
-    }
+//    @Test
+//    public void 게시물저장_테스트(){
+//        //given
+//        Board beforeBoard = Board.builder()
+//                .writer(author)
+//                .contentImg("None")
+//                .contentText("Testing...")
+//                .build();
+//
+//        //when
+//        Board afterSave = boardRepository.save(beforeBoard);
+//
+//        //then
+//        assertEquals(afterSave.getContentText(), "Testing...");
+//        assertEquals(afterSave.getCreatedDT().toLocalDate(), LocalDate.now());
+//    }
+//
+//    @Test
+//    public void 게시물수정_테스트(){
+//        //when
+//        board.setContentText(updateContent);
+//        board = boardRepository.save(board);
+//
+//        //then
+//        assertEquals(updateContent, board.getContentText());
+//        assertEquals(LocalDate.now(), board.getUpdatedDT().toLocalDate());
+//    }
+//
+//    @Test
+//    public void 게시물삭제_테스트(){
+//        //when
+//        boardRepository.delete(board);
+//        Long expectId = -1L;
+//        Board afterBoard = boardRepository.findById(board.getId()).orElseGet(
+//                ()-> Board.builder().id(expectId).build());
+//
+//        //then
+//        assertEquals(expectId, afterBoard.getId());
+//    }
 }

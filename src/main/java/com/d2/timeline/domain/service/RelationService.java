@@ -178,19 +178,23 @@ public class RelationService {
     public Page<MemberDTO> showRelationList(Long memberId, RelationState state, Pageable pageable){
         Member member = memberRepository.findById(memberId).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
-        if(state == RelationState.FOLLOWED){
-            return showFollowerList(memberId, pageable);
+        boolean isRelated = (state == RelationState.FOLLOWED || state == RelationState.FOLLOWED);
+        if(isRelated){
+            return showRelatedList(memberId, state, pageable);
         }
         Page<Member> relationMemberList = userRelationRepo.findSlaveByMasterAndState(member, state, pageable);
 
         return relationMemberList.map(MemberDTO::new);
     }
 
-    private Page<MemberDTO> showFollowerList(Long memberId, Pageable pageable){
-        RelationState state = RelationState.FOLLOW;
+    private Page<MemberDTO> showRelatedList(Long memberId, RelationState state, Pageable pageable){
+        RelationState dbState = RelationState.REQUESTED;
+        if(state == RelationState.FOLLOWED){
+            dbState = RelationState.FOLLOW;
+        }
         Member member = memberRepository.findById(memberId).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
-        Page<Member> relationMemberList = userRelationRepo.findMasterBySlaveAndState(member, state, pageable);
+        Page<Member> relationMemberList = userRelationRepo.findMasterBySlaveAndState(member, dbState, pageable);
 
         return relationMemberList.map(MemberDTO::new);
     }
