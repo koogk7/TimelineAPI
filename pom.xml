@@ -131,22 +131,17 @@
             <scope>test</scope>
             <type>pom</type>
         </dependency>
+        <!--spring boot redis-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test</artifactId>
-            <version>2.1.6.RELEASE</version>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-
-        <!--        <dependency>-->
-<!--            <groupId>org.javassist</groupId>-->
-<!--            <artifactId>javassist</artifactId>-->
-<!--            <version>3.21.0-GA</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-        <!---->
-
-
+        <!--AWS-->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.11.538</version>
+        </dependency>
     </dependencies>
 
     <build>

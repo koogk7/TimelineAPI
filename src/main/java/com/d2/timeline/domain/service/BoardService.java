@@ -1,12 +1,11 @@
 package com.d2.timeline.domain.service;
 
+import com.d2.timeline.domain.common.S3Uploader;
 import com.d2.timeline.domain.dao.BoardRepository;
 import com.d2.timeline.domain.dao.MemberRepository;
 import com.d2.timeline.domain.dao.TimelineRepository;
 import com.d2.timeline.domain.dto.BoardReadDTO;
-import com.d2.timeline.domain.dto.BoardWriteDTO;
 import com.d2.timeline.domain.exception.EntityNotFoundException;
-import com.d2.timeline.domain.exception.UnmatchedRequestorException;
 import com.d2.timeline.domain.exception.UnmatchedWriterException;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
@@ -17,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.d2.timeline.domain.Constant.BoardConstant.*;
 
@@ -29,29 +31,66 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final TimelineRepository timelineRepository;
+    private final S3Uploader s3Uploader;
 
-    public Page<BoardReadDTO> loadTimeline(Member member, Pageable pageable){
-        Page<Timeline> timeLines = timelineRepository.findByReciver(member, pageable);
-        return timeLines.map(timeline -> new BoardReadDTO(timeline.getBoard()));
+    public Page<BoardReadDTO> loadTimelineFromOrigin(String email, Pageable pageable){
+        logger.info("Entry getTimlinePage");
+        Page<Timeline> timeLines = getTimeline(email,pageable);
+        return transTimelineToBoardReadDTO(timeLines);
     }
 
-    public String saveBoard(String writerEmail, BoardWriteDTO newBoardDTO){
+    public Page<Timeline> getTimeline(String email, Pageable pageable){
+        logger.info("Entry getTimeline");
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                ()-> new EntityNotFoundException("올바른 요청자가 아닙니다."));
+
+        return timelineRepository.findByReceiver(member, pageable);
+    }
+
+
+    public String saveBoard(String writerEmail, String content, MultipartFile img){
         Member writer =  memberRepository.findByEmail(writerEmail).
-                orElseThrow(()-> new EntityNotFoundException(ERROR_NOT_EXIST));
+                orElseThrow(()-> new EntityNotFoundException("작성자가 존재하지 않습니다."));
+        String img_url = "";
+
+        try {
+            img_url = s3Uploader.upload(img, "board");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Board newBoard = Board.builder()
                 .writer(writer)
+                .contentText(content)
+                .contentImg(img_url)
                 .build();
-        newBoard = newBoardDTO.transBoard(newBoard);
+
         boardRepository.save(newBoard);
+
+        Timeline timeline =Timeline.builder()
+                .receiver(writer)
+                .board(newBoard)
+                .build();
+
+        timelineRepository.save(timeline);
         return OK_MSG;
     }
 
-    public String updateBoard(String requestEmail, Long boardId, BoardWriteDTO updateBoardDTO){
+    public String updateBoard(String requestEmail, Long boardId, String boardContent, MultipartFile boardImg){
         Board updateBoard = boardRepository.findById(boardId).orElseThrow(
-                ()-> new EntityNotFoundException(ERROR_NOT_EXIST));
-
+                ()-> new EntityNotFoundException("올바른 게시물 아닙니다."));
+        String imgUrl = "";
         validateRequest(requestEmail, updateBoard);
-        updateBoard = updateBoardDTO.transBoard(updateBoard);
+
+        try {
+            imgUrl = s3Uploader.upload(boardImg, "board");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        updateBoard.setContentText(boardContent);
+        updateBoard.setContentImg(imgUrl);
+
         boardRepository.save(updateBoard);
         return OK_MSG;
     }
@@ -76,10 +115,11 @@ public class BoardService {
         return resultBoardList.map(BoardReadDTO::new);
     }
 
-    private void checkLoadAuthority(String request, Member member){
-        String requestorEmail = member.getEmail();
-        if(!request.equals(requestorEmail))
-            throw new UnmatchedRequestorException(ERROR_BAD_REQUEST);
+    public Page<BoardReadDTO> transTimelineToBoardReadDTO(Page<Timeline> timelinePage)
+    {
+        logger.info("Entry transTimelineToBoardReadDTO");
+        timelinePage.forEach(timeline -> logger.info(timeline.toString()));
+        return timelinePage.map(timeline -> new BoardReadDTO(timeline.getBoard()));
     }
 
     private void validateRequest(String request, Board board){

@@ -25,6 +25,7 @@ public class BoardRepositoryTest extends RepositoryTest{
 
     @Autowired
     private MemberRepository memberRepository;
+
     final static Long targetBoardId = 1L;
     final static String updateContent = "Updated";
 

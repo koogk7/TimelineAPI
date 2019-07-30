@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AuthenticationHelper {
+
     public String getEmailFormToken(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return  authentication.getName();
