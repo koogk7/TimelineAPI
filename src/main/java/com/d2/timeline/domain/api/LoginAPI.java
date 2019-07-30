@@ -1,7 +1,9 @@
 package com.d2.timeline.domain.api;
 
 import com.d2.timeline.domain.dto.SignUpDTO;
+import com.d2.timeline.domain.service.BoardService;
 import com.d2.timeline.domain.service.MemberService;
+import com.d2.timeline.domain.vo.Board;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginAPI {
 
     private final MemberService memberService;
+    private final BoardService boardService;
 
     @ApiOperation(value = "로그인")
     @PostMapping(value = "/login")

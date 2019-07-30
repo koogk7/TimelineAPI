@@ -21,8 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.d2.timeline.domain.Constant.BoardConstant.ERROR_MSG;
-import static com.d2.timeline.domain.Constant.BoardConstant.OK_MSG;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -119,7 +117,7 @@ public class BoardServiceTest extends MockTest{
         Timeline timeline = Timeline.builder()
                 .id(1L)
                 .board(board)
-                .reciver(author)
+                .receiver(author)
                 .build();
         timelineList.add(timeline);
         timelineList.add(timeline);
@@ -127,10 +125,10 @@ public class BoardServiceTest extends MockTest{
         PageRequest pageRequest = PageRequest.of(0, 5);
 
         Page<Timeline> timelinePage = new PageImpl<Timeline>(timelineList, PageRequest.of(0, 5),10);
-        given(timelineRepository.findByReciver(author, pageRequest)).willReturn(timelinePage);
+        given(timelineRepository.findByReceiver(author, pageRequest)).willReturn(timelinePage);
 
         //when
-        boardReadDTOPage = boardService.loadTimeline(author, pageRequest);
+        boardReadDTOPage = boardService.loadTimelineFromOrigin(author.getEmail(), pageRequest);
 
         //then
         assertThat(boardReadDTOPage, contains(

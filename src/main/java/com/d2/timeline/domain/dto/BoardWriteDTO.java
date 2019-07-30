@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 
@@ -21,17 +23,17 @@ public class BoardWriteDTO {
 
     @NotNull
     @ApiModelProperty(value = "본문 사진")
-    private String contentImg;
+    private MultipartFile contentImg;
 
     public Board transBoard(Board board) {
         board.setContentText(this.contentText);
-        board.setContentImg(this.contentImg);
+//        board.setContentImg(this.contentImg);
         return board;
     }
 
     @Builder
     public BoardWriteDTO(String contentText, String contentImg){
         this.contentText = contentText;
-        this.contentImg = contentImg;
+//        this.contentImg = contentImg;
     }
 }

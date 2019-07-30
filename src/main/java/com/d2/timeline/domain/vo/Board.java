@@ -6,17 +6,18 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name="board_tb")
-public class Board extends BaseEntity {
+public class Board extends BaseEntity implements Serializable {
 
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "user_FK", nullable = false)
+    @JoinColumn(name = "userFk", nullable = false)
     @Setter
     private Member writer;
 

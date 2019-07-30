@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Getter
 @Builder
@@ -13,17 +15,18 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "timeline_tb")
-public class Timeline {
+public class Timeline implements Serializable {
     @Id
     @Column(name = "idx_PK")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_FK")
-    private Member reciver;
+    @JoinColumn(name = "userFk")
+    private Member receiver;
 
     @ManyToOne
-    @JoinColumn(name = "board_FK")
+    @JoinColumn(name = "boardFk")
     private Board board;
+
 }
