@@ -3,13 +3,9 @@ package com.d2.timeline.domain.dto;
 import com.d2.timeline.domain.vo.Member;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
-//TODO allArgsConstructor 삭제하고 builder만들었는데 allArgs 사용 한 부분 없는지 확인!!
 @NoArgsConstructor
 @Setter
 @Getter

@@ -1,10 +1,8 @@
 package com.d2.timeline.common;
 
 import com.d2.timeline.domain.common.S3Uploader;
-import com.d2.timeline.service.MockTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;

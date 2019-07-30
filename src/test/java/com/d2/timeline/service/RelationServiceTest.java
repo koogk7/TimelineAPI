@@ -31,7 +31,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.persistence.NoResultException;
-import javax.validation.constraints.Null;
 
 
 @WebAppConfiguration

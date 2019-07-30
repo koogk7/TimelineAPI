@@ -11,12 +11,11 @@ import javax.persistence.*;
 @Table(name = "user_relation_tb")
 public class UserRelation extends BaseEntity {
 
-    //TODO cascadeType.REMOVE -> 부모에 설정해야함(여기서는  Member.java)
-    @ManyToOne//(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "master_FK", nullable = false)
     private Member master;
 
-    @ManyToOne//(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "slave_FK", nullable = false)
     private Member slave;
 

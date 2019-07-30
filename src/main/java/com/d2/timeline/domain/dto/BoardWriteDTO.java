@@ -1,13 +1,10 @@
 package com.d2.timeline.domain.dto;
 
-import com.d2.timeline.domain.vo.Board;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
