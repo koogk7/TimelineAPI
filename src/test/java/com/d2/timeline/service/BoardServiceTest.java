@@ -4,6 +4,8 @@ import com.d2.timeline.domain.dao.BoardRepository;
 import com.d2.timeline.domain.dao.TimelineRepository;
 import com.d2.timeline.domain.dto.BoardReadDTO;
 import com.d2.timeline.domain.dto.BoardWriteDTO;
+import com.d2.timeline.domain.exception.EntityNotFoundException;
+import com.d2.timeline.domain.exception.UnmatchedWriterException;
 import com.d2.timeline.domain.service.BoardService;
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
@@ -69,45 +72,27 @@ public class BoardServiceTest extends MockTest{
                 .build();
     }
 
-//    @Test
-//    public void 유저정보수정_성공_테스트(){
-//        //given
-//        given(boardRepository.existsById(boardId)).willReturn(true);
-//        //when
-//        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
-//        //then
-//        assertEquals(OK_MSG, returnMessage);
-//    }
-//
-//    @Test
-//    public void 유저정보수정_실패_테스트(){
-//        //given
-//        given(boardRepository.existsById(-1L)).willReturn(false);
-//        //when
-//        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
-//        //then
-//        assertEquals(ERROR_MSG, returnMessage);
-//    }
-//
-//    @Test
-//    public void 유저정보삭제_성공_테스트(){
-//        //given
-//        given(boardRepository.existsById(boardId)).willReturn(true);
-//        //when
-//        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
-//        //then
-//        assertEquals(OK_MSG, returnMessage);
-//    }
-//
-//    @Test
-//    public void 유저정보삭제_실패_테스트(){
-//        //given
-//        given(boardRepository.existsById(boardId)).willReturn(false);
-//        //when
-//        final String returnMessage = boardService.deleteBoard(authorEmail, boardId);
-//        //then
-//        assertEquals(ERROR_MSG, returnMessage);
-//    }
+    @Test(expected = EntityNotFoundException.class)
+    public void 게시물수정_실패_존재하지않는게시물(){
+        //given
+        given(boardRepository.findById(board.getId())).willReturn(Optional.empty());
+
+        //when
+        final String returnMessage = boardService.updateBoard(authorEmail, boardId, boardUpdateDTO);
+
+        //then
+    }
+
+    @Test(expected = UnmatchedWriterException.class)
+    public void 게시물수정_실패_권한없음(){
+        //given
+        given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
+
+        //when
+        final String returnMessage = boardService.updateBoard("failTest@test.com", boardId, boardUpdateDTO);
+
+        //then
+    }
 
     @Test
     public void 타임라인_성공_테스트(){

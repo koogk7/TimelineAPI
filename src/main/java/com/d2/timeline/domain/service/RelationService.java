@@ -91,6 +91,8 @@ public class RelationService {
         Member respondent = (memberRepository.findById(userRelationDTO.getSlaveId())).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
 
+        validateMember(requestEmail, respondent);
+
         boolean exist = userRelationRepo.existsByMasterAndSlaveAndState(requester, respondent, RelationState.REQUEST);
         isExist(exist);
 
@@ -98,7 +100,6 @@ public class RelationService {
             deleteRelation(requester, respondent);
             return FOLLOW_RESPONSE_NO_MSG;
         }
-        validateMember(requestEmail, respondent);
 
         updateRelation(requester, respondent, RelationState.FOLLOW);
 
@@ -113,10 +114,11 @@ public class RelationService {
         UserRelation userRelation = userRelationRepo.findByMasterAndSlave(master, slave).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
 
+        validateMember(requestEmail, master);
+
         boolean existFollow = (userRelation.getState() == RelationState.FOLLOW);
 
         isExist(existFollow);
-        validateMember(requestEmail, master);
 
         deleteRelation(master, slave);
         return OK_MSG_RELATION;
@@ -159,6 +161,19 @@ public class RelationService {
         return OK_MSG_RELATION;
     }
 
+    public RelationState verifyRelation(Long masterId, Long slaveId){
+
+        Member master = (memberRepository.findById(masterId)).orElseThrow(
+                ()-> new NoResultException(ERROR_NOT_EXIST));
+        Member slave = (memberRepository.findById(slaveId)).orElseThrow(
+                ()-> new NoResultException(ERROR_NOT_EXIST));
+        boolean existRelation = userRelationRepo.existsByMasterAndSlave(master, slave);
+
+        if(!existRelation){
+            return RelationState.NONE;
+        }
+        return userRelationRepo.findStateByMasterAndSlave(master, slave);
+    }
 
     public Page<MemberDTO> showRelationList(Long memberId, RelationState state, Pageable pageable){
         Member member = memberRepository.findById(memberId).orElseThrow(
@@ -171,7 +186,7 @@ public class RelationService {
         return relationMemberList.map(MemberDTO::new);
     }
 
-    public Page<MemberDTO> showFollowerList(Long memberId, Pageable pageable){
+    private Page<MemberDTO> showFollowerList(Long memberId, Pageable pageable){
         RelationState state = RelationState.FOLLOW;
         Member member = memberRepository.findById(memberId).orElseThrow(
                 ()-> new NoResultException(ERROR_NOT_EXIST));
@@ -195,17 +210,5 @@ public class RelationService {
         }
     }
 
-    public RelationState verifyRelation(Long masterId, Long slaveId){
 
-        Member master = (memberRepository.findById(masterId)).orElseThrow(
-                ()-> new NoResultException(ERROR_NOT_EXIST));
-        Member slave = (memberRepository.findById(slaveId)).orElseThrow(
-                ()-> new NoResultException(ERROR_NOT_EXIST));
-        boolean existRelation = userRelationRepo.existsByMasterAndSlave(master, slave);
-;
-        if(!existRelation){
-            return RelationState.NONE;
-        }
-        return userRelationRepo.findStateByMasterAndSlave(master, slave);
-    }
 }

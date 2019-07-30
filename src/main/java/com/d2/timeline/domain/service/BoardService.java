@@ -97,7 +97,7 @@ public class BoardService {
 
     public String deleteBoard(String requestEmail, Long deleteBoard){
         Board board = boardRepository.findById(deleteBoard).orElseThrow(
-                ()-> new EntityNotFoundException("존재하지 않는 게시물입니다."));
+                ()-> new EntityNotFoundException(ERROR_NOT_EXIST));
 
         validateRequest(requestEmail, board);
         boardRepository.deleteById(deleteBoard);
@@ -106,7 +106,7 @@ public class BoardService {
 
     public BoardReadDTO findByBoardId(Long boardId){
         Board targetBoard = boardRepository.findById(boardId).orElseThrow(
-                ()-> new EntityNotFoundException("존재하지 않는 게시물입니다."));
+                ()-> new EntityNotFoundException(ERROR_NOT_EXIST));
         return new BoardReadDTO(targetBoard);
     }
 
@@ -125,7 +125,7 @@ public class BoardService {
     private void validateRequest(String request, Board board){
         String writerEmail = board.getWriter().getEmail();
         if(!request.equals(writerEmail))
-            throw new UnmatchedWriterException("작성자가 아닙니다");
+            throw new UnmatchedWriterException(ERROR_BAD_REQUEST);
     }
 
 
