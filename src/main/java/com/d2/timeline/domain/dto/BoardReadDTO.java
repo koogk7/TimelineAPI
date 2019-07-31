@@ -3,13 +3,12 @@ package com.d2.timeline.domain.dto;
 
 import com.d2.timeline.domain.vo.Board;
 import com.d2.timeline.domain.vo.Member;
-import io.swagger.annotations.ApiParam;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-import static com.d2.timeline.domain.Constant.SwaggerBoardConstant.BOARD_DESC;
 
 @Getter
 @NoArgsConstructor

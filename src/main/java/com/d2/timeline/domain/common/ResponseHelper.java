@@ -1,7 +1,5 @@
 package com.d2.timeline.domain.common;
 
-import com.d2.timeline.domain.Constant.BoardConstant;
-import com.d2.timeline.domain.Constant.RelationServiceConstant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

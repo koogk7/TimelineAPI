@@ -1,4 +1,4 @@
-package com.d2.timeline.dao;
+package com.d2.timeline.vo;
 
 import com.d2.timeline.domain.dao.TimelineRedisRepository;
 import com.d2.timeline.domain.vo.TimelineRedis;
@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)

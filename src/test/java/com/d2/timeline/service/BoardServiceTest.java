@@ -14,12 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
+
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -35,8 +34,6 @@ public class BoardServiceTest extends MockTest{
     final static Long boardId = 1L;
     final static String authorEmail = "master@test.com";
 
-//    @Autowired
-//    MockMvc mockMvc;  // page 생성을 위한 주입
 
     @InjectMocks
     private BoardService boardService;

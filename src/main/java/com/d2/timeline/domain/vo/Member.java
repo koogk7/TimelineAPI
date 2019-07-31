@@ -16,18 +16,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//Todo 문서
-/**
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-        - Json 결과로 출력 안 할 데이터로 지정
-    UserDetails Override 함수
-        - getUsername : security에서 사용되는 회원구분 id, 여기서는 email로 사용
-        - isAccountNonExpired : 계정이 만료가 안 되어 있는지
-        - isAccountNonLocked: 계정이 잠기지 않았는지
-        - isCredentialsNonExpired : 계정 패스워드가 만료 안되었는지
-        - isEnabled : 계정이 사용 가능한지
- */
-
 @Getter
 @NoArgsConstructor
 @Entity
