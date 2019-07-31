@@ -44,7 +44,7 @@ public class BoardAPI {
             @ApiImplicitParam(name = SORT_NAME, value = SORT_DESC, allowMultiple = true,
                     dataType = "string", paramType = "query")
     })
-    @GetMapping(value = "")
+    @GetMapping(value = "/timeline")
     public ResponseEntity loadTimeline(Pageable pageable, PagedResourcesAssembler assembler){
         String requestEmail = authHelper.getEmailFormToken();
         logger.info(requestEmail);

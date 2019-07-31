@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api(tags = "Sign")
+@Api(tags = "Login")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
