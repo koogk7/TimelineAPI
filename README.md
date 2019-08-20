@@ -1,5 +1,7 @@
 # TimelineAPI
-☘️D2 SUMMER CHALLENGE - Timeline API
+☘️D2 SUMMER CHALLENGE - Timeline API  
+[결과보고서 보기](https://koogk7.github.io/D2-%EB%B3%B4%EA%B3%A0%EC%84%9C/)
+
 
 ### 개발환경
 
@@ -24,4 +26,3 @@ cloud.aws.region.static=
 ### 프로젝트 구조
 ![](https://user-images.githubusercontent.com/48513360/62139632-a8945a00-b324-11e9-994f-41ecc5556a71.png)
 ![](https://user-images.githubusercontent.com/48513360/62139760-daa5bc00-b324-11e9-8646-e7c13a7611e7.png)
-`
